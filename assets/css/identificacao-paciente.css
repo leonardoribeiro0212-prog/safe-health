@@ -1,0 +1,284 @@
+.identificacao-page {
+    width: 100%;
+}
+
+.page-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.page-eyebrow {
+    display: inline-block;
+    margin-bottom: 7px;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.page-heading h2 {
+    margin-bottom: 8px;
+    font-size: 28px;
+}
+
+.page-heading p {
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.ticket-reference {
+    min-width: 150px;
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.ticket-reference span,
+.ticket-reference strong {
+    display: block;
+}
+
+.ticket-reference span {
+    margin-bottom: 6px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.ticket-reference strong {
+    color: var(--primary);
+    font-size: 22px;
+}
+
+.identificacao-card {
+    padding: 26px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+.search-form {
+    display: grid;
+    grid-template-columns: minmax(240px, 1fr) auto;
+    align-items: end;
+    gap: 16px;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.form-field input {
+    width: 100%;
+    height: 48px;
+    padding: 0 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    outline: none;
+    font-size: 15px;
+}
+
+.form-field input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(23, 107, 135, 0.12);
+}
+
+.search-button,
+.register-button,
+.service-button,
+.secondary-button {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.search-button,
+.service-button {
+    background: var(--primary);
+    color: #ffffff;
+}
+
+.search-button:hover,
+.service-button:hover {
+    background: var(--primary-dark);
+}
+
+.register-button {
+    background: var(--accent);
+    color: #083d36;
+}
+
+.secondary-button {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+}
+
+.search-message {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.search-message.loading {
+    background: #eef6fb;
+    color: var(--primary);
+}
+
+.search-message.warning {
+    background: #fff8e8;
+    color: #895f00;
+}
+
+.search-message.error {
+    background: #fff0ef;
+    color: #a9362e;
+}
+
+.patient-result {
+    margin-top: 22px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+}
+
+.patient-header,
+.not-found-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.patient-header span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--success);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.patient-header h3,
+.not-found-card h3 {
+    font-size: 21px;
+}
+
+.not-found-card {
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.not-found-card p {
+    margin-top: 6px;
+    color: var(--muted);
+}
+
+.result-icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border-radius: 13px;
+    font-size: 20px;
+}
+
+.result-icon.success {
+    background: #e8f7f1;
+    color: var(--success);
+}
+
+.result-icon.warning {
+    background: #fff3d2;
+    color: #9a6900;
+}
+
+.patient-data-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 22px;
+}
+
+.patient-data-grid>div {
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--background);
+}
+
+.patient-data-grid span,
+.patient-data-grid strong {
+    display: block;
+}
+
+.patient-data-grid span {
+    margin-bottom: 7px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.patient-data-grid strong {
+    font-size: 14px;
+}
+
+.patient-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+@media (max-width: 850px) {
+    .page-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .ticket-reference {
+        width: 100%;
+    }
+
+    .patient-data-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .search-form {
+        grid-template-columns: 1fr;
+    }
+
+    .patient-data-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .patient-actions,
+    .not-found-card {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .patient-actions a,
+    .patient-actions button,
+    .not-found-card .register-button {
+        width: 100%;
+    }
+}

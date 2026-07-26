@@ -1,0 +1,577 @@
+.recepcao-layout .main-content {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 32px;
+}
+
+.recepcao-page {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    margin: 0;
+}
+
+.recepcao-page .summary-grid,
+.recepcao-page .queue-section,
+.recepcao-page .table-container {
+    width: 100%;
+    max-width: none;
+}
+
+@media (max-width: 1200px) {
+    .recepcao-layout .main-content {
+        padding: 24px;
+    }
+}
+
+@media (max-width: 700px) {
+    .recepcao-layout .main-content {
+        padding: 16px;
+    }
+}
+
+.recepcao-page {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    margin: 0;
+}
+
+.recepcao-page .summary-grid,
+.recepcao-page .queue-section {
+    width: 100%;
+    max-width: none;
+}
+
+.recepcao-layout .main-content {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 32px;
+}
+
+.recepcao-layout .recepcao-page {
+    width: 100%;
+    max-width: none;
+}
+
+.recepcao-page .table-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.recepcao-page {
+    width: 100%;
+    min-width: 850px;
+    border-collapse: collapse;
+}
+
+.recepcao-page {
+    min-height: calc(100vh - 150px);
+}
+
+.recepcao-page .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+@media (max-width: 700px) {
+    .recepcao-page .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .recepcao-page .summary-card:last-child {
+        grid-column: auto;
+    }
+}
+
+/* Evita que estilos da recepção alterem outros módulos */
+.recepcao-page button,
+.recepcao-page select {
+    font: inherit;
+}
+
+/* Cards de resumo */
+
+.recepcao-page .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.recepcao-page .summary-card {
+    min-height: 112px;
+    padding: 20px;
+
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    background: #ffffff;
+    border: 1px solid #e0e6ed;
+    border-radius: 16px;
+
+    box-shadow:
+        0 8px 22px rgba(16, 24, 40, 0.05);
+}
+
+.recepcao-page .summary-icon {
+    width: 54px;
+    height: 54px;
+
+    flex-shrink: 0;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 14px;
+    font-size: 21px;
+}
+
+.recepcao-page .summary-icon.waiting {
+    background: #e8f1fb;
+    color: #1456a0;
+}
+
+.recepcao-page .summary-icon.current {
+    background: #fff1d6;
+    color: #b76e00;
+}
+
+.recepcao-page .summary-icon.update {
+    background: #e7f7f2;
+    color: #16856d;
+}
+
+.recepcao-page .summary-card span {
+    display: block;
+    margin-bottom: 5px;
+
+    color: #667085;
+    font-size: 14px;
+}
+
+.recepcao-page .summary-card strong {
+    display: block;
+
+    color: #1d2939;
+    font-size: 30px;
+}
+
+.recepcao-page .summary-card .update-time {
+    font-size: 21px;
+}
+
+/* Área principal das filas */
+
+.recepcao-page .queue-section {
+    overflow: hidden;
+
+    background: #ffffff;
+    border: 1px solid #e0e6ed;
+    border-radius: 18px;
+
+    box-shadow:
+        0 10px 26px rgba(16, 24, 40, 0.05);
+}
+
+.recepcao-page .section-toolbar {
+    min-height: 72px;
+    padding: 14px 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    border-bottom: 1px solid #eaecf0;
+}
+
+/* Abas Urgência e Ambulatório */
+
+.recepcao-page .tabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.recepcao-page .tab {
+    min-height: 42px;
+    padding: 0 18px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    border: 0;
+    border-radius: 10px;
+
+    background: transparent;
+    color: #667085;
+
+    font-weight: 700;
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.recepcao-page .tab:hover {
+    background: #f3f6f9;
+}
+
+.recepcao-page .tab.active {
+    background: #1456a0;
+    color: #ffffff;
+}
+
+/* Guichê e botão atualizar */
+
+.recepcao-page .reception-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.recepcao-page .guiche-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.recepcao-page .guiche-field label {
+    color: #475467;
+    font-weight: 700;
+}
+
+.recepcao-page .guiche-field select {
+    min-width: 150px;
+    height: 42px;
+    padding: 0 14px;
+
+    border: 1px solid #ccd5e0;
+    border-radius: 10px;
+
+    background: #ffffff;
+    color: #344054;
+
+    outline: none;
+}
+
+.recepcao-page .guiche-field select:focus {
+    border-color: #1456a0;
+    box-shadow: 0 0 0 3px rgba(20, 86, 160, 0.12);
+}
+
+.recepcao-page .refresh-button {
+    min-height: 42px;
+    padding: 0 16px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    border: 1px solid #ccd5e0;
+    border-radius: 10px;
+
+    background: #ffffff;
+    color: #344054;
+
+    font-weight: 700;
+    cursor: pointer;
+
+    transition: background 0.2s ease;
+}
+
+.recepcao-page .refresh-button:hover {
+    background: #f8fafc;
+}
+
+.recepcao-page .refresh-button:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+/* Tabela */
+
+.recepcao-page .table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.recepcao-page {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.recepcao-page thead {
+    background: #f8fafc;
+}
+
+.recepcao-page th {
+    padding: 15px 18px;
+
+    text-align: left;
+
+    color: #475467;
+    font-size: 13px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+
+    white-space: nowrap;
+}
+
+.recepcao-page td {
+    padding: 17px 18px;
+
+    border-top: 1px solid #eef1f5;
+
+    color: #475467;
+    vertical-align: middle;
+}
+
+.recepcao-page tbody tr:hover {
+    background: #fafcff;
+}
+
+.recepcao-page .current-row {
+    background: #fffaf0;
+}
+
+.recepcao-page .ticket-number {
+    color: #12365e;
+    font-size: 25px;
+}
+
+.recepcao-page .queue-name {
+    color: #344054;
+    font-weight: 700;
+}
+
+.recepcao-page td small {
+    display: block;
+    margin-top: 4px;
+
+    color: #98a2b3;
+}
+
+/* Status */
+
+.recepcao-page .status {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 7px 11px;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+.recepcao-page .status.waiting {
+    background: #e8f1fb;
+    color: #1456a0;
+}
+
+.recepcao-page .status.called {
+    background: #fff0cc;
+    color: #9a6100;
+}
+
+/* Botões da tabela */
+
+.recepcao-page .action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    white-space: nowrap;
+}
+
+.recepcao-page .call-button,
+.recepcao-page .service-button {
+    min-height: 38px;
+    padding: 0 13px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    border: 0;
+    border-radius: 9px;
+
+    font-weight: 700;
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.recepcao-page .call-button {
+    background: #1456a0;
+    color: #ffffff;
+}
+
+.recepcao-page .call-button:hover {
+    background: #0f477f;
+}
+
+.recepcao-page .service-button {
+    background: #16856d;
+    color: #ffffff;
+}
+
+.recepcao-page .service-button:hover {
+    background: #116d5a;
+}
+
+.recepcao-page .service-button:disabled {
+    background: #d0d5dd;
+    color: #ffffff;
+
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+/* Linha vazia ou erro */
+
+.recepcao-page .empty-row {
+    padding: 45px;
+
+    text-align: center;
+
+    color: #98a2b3;
+}
+
+.recepcao-page .empty-row.error {
+    color: #b42318;
+}
+
+/* Mensagem flutuante */
+
+.recepcao-toast {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 9999;
+
+    max-width: 420px;
+    padding: 15px 18px;
+
+    border-radius: 12px;
+
+    background: #16856d;
+    color: #ffffff;
+
+    font-weight: 700;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(14px);
+
+    transition:
+        opacity 0.2s ease,
+        visibility 0.2s ease,
+        transform 0.2s ease;
+
+    box-shadow:
+        0 14px 32px rgba(16, 24, 40, 0.18);
+}
+
+.recepcao-toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.recepcao-toast.error {
+    background: #b42318;
+}
+
+/* Responsividade */
+
+@media (max-width: 1100px) {
+    .recepcao-page .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .recepcao-page .summary-card:last-child {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 600px) {
+    .recepcao-page .reception-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .recepcao-page .guiche-field {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .recepcao-page .guiche-field select,
+    .recepcao-page .refresh-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 650px) {
+    .recepcao-page .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .recepcao-page .summary-card:last-child {
+        grid-column: auto;
+    }
+
+    .recepcao-page .reception-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .recepcao-page .guiche-field {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .recepcao-page .guiche-field select,
+    .recepcao-page .refresh-button {
+        width: 100%;
+    }
+
+    .recepcao-page .action-buttons {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .recepcao-page .call-button,
+    .recepcao-page .service-button {
+        width: 100%;
+    }
+
+    .recepcao-toast {
+        right: 16px;
+        bottom: 16px;
+        left: 16px;
+
+        max-width: none;
+    }
+}

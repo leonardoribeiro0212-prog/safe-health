@@ -1,0 +1,358 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    font-family:
+        Inter,
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #eef3f8;
+    color: #172033;
+}
+
+.painel-page {
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.painel-header {
+    min-height: 92px;
+    padding: 16px 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #ffffff;
+    border-bottom: 1px solid #dce3eb;
+}
+
+.painel-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.painel-logo {
+    width: 56px;
+    height: 56px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 16px;
+
+    background: #1456a0;
+    color: #ffffff;
+
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.painel-brand strong {
+    display: block;
+
+    font-size: 24px;
+    color: #12365e;
+}
+
+.painel-brand span {
+    display: block;
+
+    margin-top: 4px;
+
+    font-size: 14px;
+    color: #68768a;
+}
+
+.painel-clock {
+    text-align: right;
+}
+
+.painel-clock strong {
+    display: block;
+
+    font-size: 30px;
+    color: #12365e;
+}
+
+.painel-clock span {
+    font-size: 14px;
+    color: #68768a;
+}
+
+.painel-main {
+    flex: 1;
+
+    padding: 24px 32px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.painel-calls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.call-card {
+    min-height: 390px;
+
+    overflow: hidden;
+
+    border-radius: 24px;
+
+    background: #ffffff;
+
+    border: 1px solid #dce3eb;
+
+    box-shadow:
+        0 12px 30px rgba(28, 51, 84, 0.08);
+}
+
+.call-card-header {
+    padding: 20px 26px;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    color: #ffffff;
+
+    font-size: 24px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.call-card.recepcao .call-card-header {
+    background: #1456a0;
+}
+
+.call-card.triagem .call-card-header {
+    background: #16856d;
+}
+
+.call-content {
+    min-height: 310px;
+    padding: 28px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+}
+
+.call-label {
+    margin-bottom: 4px;
+
+    font-size: 17px;
+    font-weight: 700;
+
+    color: #68768a;
+
+    text-transform: uppercase;
+}
+
+.call-number {
+    font-size: clamp(72px, 10vw, 138px);
+    line-height: 1;
+
+    color: #172033;
+
+    letter-spacing: 0.03em;
+}
+
+.call-queue {
+    margin-top: 18px;
+
+    font-size: 22px;
+    font-weight: 700;
+
+    color: #46566d;
+}
+
+.call-location {
+    margin-top: 20px;
+    padding: 14px 30px;
+
+    border-radius: 14px;
+
+    background: #eef3f8;
+
+    font-size: 25px;
+    font-weight: 800;
+
+    color: #12365e;
+}
+
+.history-panel {
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #dce3eb;
+
+    box-shadow:
+        0 10px 24px rgba(28, 51, 84, 0.06);
+}
+
+.history-header {
+    min-height: 64px;
+    padding: 14px 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    border-bottom: 1px solid #e4e9ef;
+}
+
+.history-header div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    font-size: 19px;
+    font-weight: 800;
+
+    color: #12365e;
+}
+
+.history-header span {
+    font-size: 13px;
+    color: #78869a;
+}
+
+.history-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.history-item {
+    min-height: 66px;
+    padding: 12px 18px;
+
+    display: grid;
+    grid-template-columns:
+        90px minmax(140px, 1fr) 100px minmax(140px, 1fr) 54px;
+
+    align-items: center;
+    gap: 12px;
+
+    border-bottom: 1px solid #eef1f5;
+}
+
+.history-item:nth-child(odd) {
+    border-right: 1px solid #eef1f5;
+}
+
+.history-item strong {
+    font-size: 23px;
+    color: #12365e;
+}
+
+.history-item span {
+    font-size: 14px;
+    color: #54647a;
+}
+
+.history-stage {
+    font-weight: 800;
+}
+
+.history-item time {
+    text-align: right;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    color: #78869a;
+}
+
+.history-empty {
+    grid-column: 1 / -1;
+
+    padding: 34px;
+
+    text-align: center;
+
+    color: #78869a;
+}
+
+.painel-footer {
+    min-height: 46px;
+    padding: 10px 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #12365e;
+    color: #ffffff;
+
+    font-size: 13px;
+}
+
+.new-call {
+    animation: destacarChamada 1s ease;
+}
+
+@keyframes destacarChamada {
+    0% {
+        transform: scale(1);
+        box-shadow:
+            0 0 0 0 rgba(20, 86, 160, 0.5);
+    }
+
+    40% {
+        transform: scale(1.015);
+        box-shadow:
+            0 0 0 12px rgba(20, 86, 160, 0.14);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow:
+            0 12px 30px rgba(28, 51, 84, 0.08);
+    }
+}
+
+@media (max-width: 900px) {
+    .painel-calls {
+        grid-template-columns: 1fr;
+    }
+
+    .history-list {
+        grid-template-columns: 1fr;
+    }
+
+    .history-item:nth-child(odd) {
+        border-right: 0;
+    }
+
+    .history-item {
+        grid-template-columns:
+            76px minmax(100px, 1fr) 90px minmax(100px, 1fr) 48px;
+    }
+}

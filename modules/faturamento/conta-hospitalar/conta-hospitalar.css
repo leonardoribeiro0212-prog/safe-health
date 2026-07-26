@@ -1,0 +1,666 @@
+:root {
+    --conta-fundo: #f3f7f9;
+    --conta-branco: #ffffff;
+    --conta-borda: #dce6eb;
+    --conta-texto: #173244;
+    --conta-texto-secundario: #71838f;
+    --conta-verde: #087f74;
+    --conta-verde-escuro: #05675f;
+    --conta-azul: #087f9b;
+    --conta-amarelo: #f59e0b;
+    --conta-vermelho: #dc3545;
+}
+
+.conta-hospitalar-page {
+    min-height: calc(100vh - 70px);
+    padding: 28px;
+    background: var(--conta-fundo);
+    color: var(--conta-texto);
+}
+
+.cabecalho-conta,
+.painel-lancamentos,
+.resumo-financeiro {
+    background: var(--conta-branco);
+    border: 1px solid var(--conta-borda);
+    border-radius: 18px;
+    box-shadow: 0 12px 35px rgba(20, 50, 70, 0.06);
+}
+
+.cabecalho-conta {
+    padding: 26px;
+    margin-bottom: 24px;
+}
+
+.cabecalho-conta-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.modulo-identificacao,
+.painel-subtitulo,
+.resumo-cabecalho>span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--conta-verde);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.titulo-conta-linha {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 7px;
+}
+
+.titulo-conta-linha h1,
+.painel-titulo h2,
+.resumo-cabecalho h2 {
+    margin: 0;
+    color: var(--conta-texto);
+}
+
+.titulo-conta-linha h1 {
+    font-size: 27px;
+}
+
+.cabecalho-conta-topo p {
+    margin: 8px 0 0;
+    color: var(--conta-texto-secundario);
+}
+
+.status-conta,
+.status-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    padding: 7px 11px;
+}
+
+.status-aberta {
+    color: #087443;
+    background: #dff8e9;
+}
+
+.status-auditoria {
+    color: #946100;
+    background: #fff0c8;
+}
+
+.status-fechada {
+    color: #1457a6;
+    background: #e1edff;
+}
+
+.status-faturada {
+    color: #ffffff;
+    background: #243746;
+}
+
+.status-desconhecido {
+    color: #475569;
+    background: #e2e8f0;
+}
+
+.dados-conta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(180px, 1fr));
+    gap: 18px;
+    padding-top: 23px;
+    margin-top: 23px;
+    border-top: 1px solid var(--conta-borda);
+}
+
+.dado-conta {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.dado-conta span {
+    color: var(--conta-texto-secundario);
+    font-size: 12px;
+}
+
+.dado-conta strong {
+    color: var(--conta-texto);
+    font-size: 14px;
+}
+
+.dado-conta.destaque strong {
+    font-size: 16px;
+}
+
+.conteudo-conta-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 24px;
+    align-items: start;
+}
+
+.painel-lancamentos {
+    padding: 24px;
+    min-width: 0;
+}
+
+.painel-titulo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.painel-titulo h2 {
+    margin-top: 5px;
+    font-size: 21px;
+}
+
+.contador-itens,
+.grupo-quantidade {
+    border-radius: 999px;
+    background: #edf4f7;
+    color: #526a78;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 7px 11px;
+}
+
+.grupo-itens {
+    margin-bottom: 32px;
+}
+
+.grupo-itens:last-child {
+    margin-bottom: 0;
+}
+
+.grupo-itens-cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.grupo-titulo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--conta-verde);
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+.tabela-responsiva {
+    overflow-x: auto;
+}
+
+.tabela-conta {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabela-conta th {
+    padding: 12px;
+    background: #edf4f7;
+    color: #4c6574;
+    font-size: 11px;
+    text-transform: uppercase;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.tabela-conta td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #e9eff2;
+    color: #314b5b;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.tabela-conta tbody tr:hover {
+    background: #fafcfd;
+}
+
+.texto-direita {
+    text-align: right !important;
+}
+
+.descricao-item {
+    display: block;
+    color: var(--conta-texto);
+}
+
+.tabela-conta small {
+    display: block;
+    color: var(--conta-texto-secundario);
+    margin-top: 4px;
+}
+
+.valor-item {
+    color: var(--conta-verde) !important;
+    font-weight: 800;
+}
+
+.item-pendente {
+    color: #926000;
+    background: #fff0c5;
+}
+
+.item-auditado {
+    color: #087443;
+    background: #dff8e9;
+}
+
+.item-glosado {
+    color: #b4232d;
+    background: #fde2e5;
+}
+
+.seletor-status-item {
+    min-width: 110px;
+    height: 34px;
+    padding: 0 8px;
+    border: 1px solid #ccd9df;
+    border-radius: 8px;
+    background: #ffffff;
+    color: var(--conta-texto);
+}
+
+.conta-bloqueada {
+    color: var(--conta-texto-secundario);
+    font-size: 12px;
+}
+
+.resumo-financeiro {
+    position: sticky;
+    top: 20px;
+    padding: 23px;
+}
+
+.resumo-cabecalho {
+    margin-bottom: 20px;
+}
+
+.resumo-cabecalho h2 {
+    margin-top: 5px;
+    font-size: 20px;
+}
+
+.resumo-linha {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--conta-borda);
+    color: #516774;
+}
+
+.resumo-linha strong {
+    color: var(--conta-texto);
+}
+
+.resumo-linha.desconto strong {
+    color: var(--conta-vermelho);
+}
+
+.resumo-total {
+    margin-top: 16px;
+    padding: 18px;
+    border-radius: 13px;
+    background: #e9f8f5;
+}
+
+.resumo-total span {
+    display: block;
+    color: #52736f;
+    font-size: 12px;
+}
+
+.resumo-total strong {
+    display: block;
+    margin-top: 5px;
+    color: var(--conta-verde);
+    font-size: 24px;
+}
+
+.dados-financeiros-secundarios {
+    display: grid;
+    gap: 12px;
+    padding: 19px 0;
+}
+
+.dados-financeiros-secundarios div {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.dados-financeiros-secundarios span {
+    color: var(--conta-texto-secundario);
+    font-size: 12px;
+}
+
+.dados-financeiros-secundarios strong {
+    font-size: 12px;
+    text-align: right;
+}
+
+.botao {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 17px;
+    border: 0;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 750;
+    transition: 0.2s ease;
+}
+
+.botao:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.botao-primario {
+    color: #ffffff;
+    background: var(--conta-azul);
+}
+
+.botao-primario:hover {
+    background: #066a82;
+}
+
+.botao-secundario {
+    color: #46616f;
+    background: #eaf0f3;
+}
+
+.botao-auditoria {
+    color: #6c4800;
+    background: #ffd976;
+}
+
+.botao-auditoria:hover {
+    background: #ffcd4a;
+}
+
+.botao-fechar {
+    color: #ffffff;
+    background: #253b49;
+}
+
+.botao-fechar:hover {
+    background: #172a36;
+}
+
+.botao-largo {
+    width: 100%;
+    margin-top: 12px;
+}
+
+.estado-vazio {
+    padding: 65px 25px;
+    text-align: center;
+}
+
+.estado-vazio-icone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 66px;
+    height: 66px;
+    margin: 0 auto 17px;
+    border-radius: 50%;
+    color: var(--conta-verde);
+    background: #e6f6f3;
+    font-size: 25px;
+}
+
+.estado-vazio h3 {
+    margin: 0;
+}
+
+.estado-vazio p {
+    max-width: 500px;
+    margin: 9px auto 20px;
+    color: var(--conta-texto-secundario);
+}
+
+.mensagem-status-final {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px;
+    margin-top: 15px;
+    border-radius: 10px;
+    color: #087443;
+    background: #dff8e9;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.mensagem-status-final.faturada {
+    color: #ffffff;
+    background: #253b49;
+}
+
+.alerta-conta {
+    margin-bottom: 18px;
+    padding: 14px 17px;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.alerta-sucesso {
+    color: #087443;
+    border: 1px solid #a7e6c0;
+    background: #dff8e9;
+}
+
+.alerta-erro {
+    color: #ad222c;
+    border: 1px solid #f3b3b8;
+    background: #fde2e5;
+}
+
+.modal-conta[hidden] {
+    display: none;
+}
+
+.modal-conta {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-conta-fundo {
+    position: absolute;
+    inset: 0;
+    background: rgba(13, 31, 43, 0.62);
+
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+}
+
+.modal-conta-conteudo {
+    position: relative;
+    z-index: 1;
+    width: min(720px, 100%);
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+}
+
+.modal-conta-cabecalho,
+.modal-conta-rodape {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 21px 24px;
+}
+
+.modal-conta-cabecalho {
+    border-bottom: 1px solid var(--conta-borda);
+}
+
+.modal-conta-cabecalho span {
+    color: var(--conta-verde);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.modal-conta-cabecalho h2 {
+    margin: 5px 0 0;
+    color: var(--conta-texto);
+    font-size: 21px;
+}
+
+.fechar-modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 50%;
+    color: #526a78;
+    background: #edf2f4;
+    cursor: pointer;
+}
+
+.modal-conta-corpo {
+    padding: 24px;
+}
+
+.modal-conta-rodape {
+    justify-content: flex-end;
+    border-top: 1px solid var(--conta-borda);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.campo-largo {
+    grid-column: 1 / -1;
+}
+
+.campo label {
+    color: #324d5d;
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.campo input,
+.campo select {
+    width: 100%;
+    min-height: 43px;
+    padding: 0 12px;
+    border: 1px solid #ccd9df;
+    border-radius: 9px;
+    outline: none;
+    background: #ffffff;
+}
+
+.campo input:focus,
+.campo select:focus {
+    border-color: var(--conta-azul);
+    box-shadow: 0 0 0 3px rgba(8, 127, 155, 0.12);
+}
+
+.total-preview {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-radius: 10px;
+    background: #edf7f5;
+}
+
+.total-preview span {
+    color: #56736f;
+    font-size: 13px;
+}
+
+.total-preview strong {
+    color: var(--conta-verde);
+    font-size: 20px;
+}
+
+body.modal-aberto {
+    overflow: hidden;
+}
+
+@media (max-width: 1200px) {
+    .dados-conta-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .conteudo-conta-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .resumo-financeiro {
+        position: static;
+    }
+}
+
+@media (max-width: 700px) {
+    .conta-hospitalar-page {
+        padding: 14px;
+    }
+
+    .cabecalho-conta-topo {
+        flex-direction: column;
+    }
+
+    .dados-conta-grid,
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .campo-largo {
+        grid-column: auto;
+    }
+
+    .titulo-conta-linha h1 {
+        font-size: 22px;
+    }
+
+    .painel-lancamentos,
+    .cabecalho-conta,
+    .resumo-financeiro {
+        padding: 18px;
+    }
+}
