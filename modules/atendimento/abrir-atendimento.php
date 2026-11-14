@@ -2,19 +2,24 @@
 
 declare(strict_types=1);
 
-session_start();
-
+require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../config/database.php';
 
 $tituloPagina = 'Abertura de Atendimento';
+$codigoTela = 'atendimento.recepcao';
 
-$senhaId = (int) ($_GET['senha_id'] ?? 0);
-$pacienteId = (int) ($_GET['paciente_id'] ?? 0);
+$senhaId = filter_input(INPUT_GET, 'senha_id', FILTER_VALIDATE_INT);
+$pacienteId = filter_input(INPUT_GET, 'paciente_id', FILTER_VALIDATE_INT);
 
-if ($senhaId <= 0 || $pacienteId <= 0) {
-    header(
-        'Location: /safe-health/modules/atendimento/recepcao.php'
-    );
+if (
+    $senhaId === false ||
+    $senhaId === null ||
+    $senhaId <= 0 ||
+    $pacienteId === false ||
+    $pacienteId === null ||
+    $pacienteId <= 0
+) {
+    header('Location: /safe-health/modules/atendimento/recepcao.php');
     exit;
 }
 
@@ -66,34 +71,69 @@ $stmtSenha->execute([
 $senha = $stmtSenha->fetch(PDO::FETCH_ASSOC);
 
 if (!$paciente || !$senha) {
-    header(
-        'Location: /safe-health/modules/atendimento/recepcao.php'
-    );
+    header('Location: /safe-health/modules/atendimento/recepcao.php');
     exit;
 }
 
-$dataNascimento = new DateTime(
-    (string) $paciente['data_nascimento']
-);
+if ($senha['status'] !== 'CHAMADA_RECEPCAO') {
+    header('Location: /safe-health/modules/atendimento/recepcao.php');
+    exit;
+}
 
-$hoje = new DateTime();
+try {
+    $dataNascimento = new DateTimeImmutable(
+        (string) $paciente['data_nascimento']
+    );
+} catch (Throwable) {
+    $dataNascimento = null;
+}
 
-$idade = $dataNascimento->diff($hoje)->y;
+$idade = $dataNascimento
+    ? $dataNascimento->diff(new DateTimeImmutable('today'))->y
+    : null;
 
 $tipoAtendimentoPadrao =
-    $senha['tipo_fila'] === 'URGENCIA'
+    strtoupper((string) $senha['tipo_fila']) === 'URGENCIA'
         ? 'URGENCIA'
         : 'AMBULATORIO';
 
-$origemPadrao = match ($senha['codigo_fila']) {
+$origemPadrao = match ((string) $senha['codigo_fila']) {
     'PS_ADULTO' => 'PRONTO_SOCORRO_ADULTO',
     'PS_INFANTIL' => 'PRONTO_SOCORRO_INFANTIL',
     'PS_ORTOPEDIA' => 'PRONTO_SOCORRO_ORTOPEDIA',
-    'AGENDAMENTO',
-    'CONSULTA' => 'CONSULTORIO',
+    'AGENDAMENTO', 'CONSULTA' => 'CONSULTORIO',
     'EXAMES' => 'EXAMES',
     default => ''
 };
+
+$especialidadePadrao = match ((string) $senha['codigo_fila']) {
+    'PS_INFANTIL' => 'PEDIATRIA',
+    'PS_ORTOPEDIA' => 'ORTOPEDIA',
+    'PS_ADULTO' => 'CLINICA MEDICA',
+    default => ''
+};
+
+// Busca os médicos ativos e a especialidade vinculada no cadastro.
+$stmtMedicos = $pdo->prepare(
+    "
+    SELECT
+        m.id,
+        m.nome,
+        m.crm,
+        m.uf_crm,
+        m.especialidade_id,
+        e.nome AS especialidade_nome
+    FROM medicos m
+    INNER JOIN especialidades e
+        ON e.id = m.especialidade_id
+    WHERE m.ativo = 1
+    ORDER BY m.nome ASC
+    "
+);
+
+$stmtMedicos->execute();
+
+$medicos = $stmtMedicos->fetchAll(PDO::FETCH_ASSOC);
 
 require_once __DIR__ . '/../../includes/header.php';
 require_once __DIR__ . '/../../includes/sidebar.php';
@@ -115,62 +155,61 @@ require_once __DIR__ . '/../../includes/sidebar.php';
             <div class="page-heading">
 
                 <div>
-                    <span class="page-eyebrow">
-                        Recepção
-                    </span>
+                    <span class="page-eyebrow">Recepção</span>
 
                     <h2>Abertura de Atendimento</h2>
 
                     <p>
                         Confira os dados do paciente e preencha
-                        as informações do atendimento.
+                        as informações para criar o atendimento.
                     </p>
                 </div>
 
-                <div class="opening-reference">
+                <div class="opening-references">
 
-    <div>
-        <span>Senha vinculada</span>
+                    <div class="reference-card">
+                        <span>Senha vinculada</span>
 
-        <strong>
-            #<?= htmlspecialchars(
-                (string) $senha['numero'],
-                ENT_QUOTES,
-                'UTF-8'
-            ) ?>
-        </strong>
-    </div>
+                        <strong>
+                            #<?= htmlspecialchars(
+                                (string) $senha['numero'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>
+                        </strong>
+                    </div>
 
-    <div
-    id="referenciaAtendimento"
-    class="referencia-atendimento"
-    hidden
->
-    <span>Atendimento criado</span>
+                    <div
+                        id="referenciaAtendimento"
+                        class="reference-card atendimento-reference"
+                    >
+                        <span>Atendimento</span>
 
-    <strong id="numeroAtendimentoCriado">
-        —
-    </strong>
-</div>
-</div>
+                        <strong id="numeroAtendimentoCriado">
+                            Aguardando criação
+                        </strong>
+                    </div>
+
+                </div>
 
             </div>
 
             <form
                 id="formAbrirAtendimento"
                 class="opening-form"
+                novalidate
             >
 
                 <input
                     type="hidden"
                     name="paciente_id"
-                    value="<?= $pacienteId ?>"
+                    value="<?= (int) $pacienteId ?>"
                 >
 
                 <input
                     type="hidden"
                     name="senha_id"
-                    value="<?= $senhaId ?>"
+                    value="<?= (int) $senhaId ?>"
                 >
 
                 <section class="form-card">
@@ -199,7 +238,6 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 
                         <div class="info-field">
                             <span>CPF</span>
-
                             <strong>
                                 <?= htmlspecialchars(
                                     (string) $paciente['cpf'],
@@ -211,23 +249,24 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 
                         <div class="info-field">
                             <span>Data de nascimento</span>
-
                             <strong>
-                                <?= $dataNascimento->format('d/m/Y') ?>
+                                <?= $dataNascimento
+                                    ? $dataNascimento->format('d/m/Y')
+                                    : 'Não informada' ?>
                             </strong>
                         </div>
 
                         <div class="info-field">
                             <span>Idade</span>
-
                             <strong>
-                                <?= $idade ?> anos
+                                <?= $idade !== null
+                                    ? $idade . ' anos'
+                                    : 'Não calculada' ?>
                             </strong>
                         </div>
 
                         <div class="info-field">
                             <span>Sexo</span>
-
                             <strong>
                                 <?= htmlspecialchars(
                                     (string) $paciente['sexo'],
@@ -239,7 +278,6 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 
                         <div class="info-field">
                             <span>Telefone</span>
-
                             <strong>
                                 <?= htmlspecialchars(
                                     (string) (
@@ -254,7 +292,6 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 
                         <div class="info-field">
                             <span>Cartão SUS</span>
-
                             <strong>
                                 <?= htmlspecialchars(
                                     (string) (
@@ -290,9 +327,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                 name="tipo_atendimento"
                                 required
                             >
-                                <option value="">
-                                    Selecione
-                                </option>
+                                <option value="">Selecione</option>
 
                                 <option
                                     value="URGENCIA"
@@ -323,168 +358,67 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                         </div>
 
                         <div class="form-field">
-                            <label for="origem">
-                                Origem
-                            </label>
+                            <label for="origem">Origem</label>
 
                             <select
                                 id="origem"
                                 name="origem"
                                 required
                             >
-                                <option value="">
-                                    Selecione
-                                </option>
+                                <option value="">Selecione</option>
 
-                                <option
-                                    value="CLINICA_MEDICA"
-                                    <?= $origemPadrao === 'CLINICA_MEDICA'
-                                        ? 'selected'
-                                        : '' ?>
-                                >
-                                    Clínica Médica
-                                </option>
+                                <?php
+                                $origens = [
+                                    'CLINICA_MEDICA' => 'Clínica Médica',
+                                    'CLINICA_CIRURGICA' => 'Clínica Cirúrgica',
+                                    'CENTRO_CIRURGICO' => 'Centro Cirúrgico',
+                                    'CONSULTORIO' => 'Consultório',
+                                    'SALA_DE_PROCEDIMENTO' => 'Sala de Procedimento',
+                                    'PRONTO_SOCORRO_ADULTO' => 'Pronto-Socorro Adulto',
+                                    'PRONTO_SOCORRO_INFANTIL' => 'Pronto-Socorro Infantil',
+                                    'PRONTO_SOCORRO_ORTOPEDIA' => 'Pronto-Socorro Ortopedia',
+                                    'AMBULATORIO' => 'Ambulatório',
+                                    'UNIDADE_DE_INTERNACAO' => 'Unidade de Internação',
+                                    'UTI' => 'UTI',
+                                    'EXAMES' => 'Setor de Exames',
+                                    'EXTERNO' => 'Atendimento Externo'
+                                ];
 
-                                <option
-                                    value="CLINICA_CIRURGICA"
-                                    <?= $origemPadrao === 'CLINICA_CIRURGICA'
-                                        ? 'selected'
-                                        : '' ?>
-                                >
-                                    Clínica Cirúrgica
-                                </option>
-
-                                <option
-                                    value="CENTRO_CIRURGICO"
-                                    <?= $origemPadrao === 'CENTRO_CIRURGICO'
-                                        ? 'selected'
-                                        : '' ?>
-                                >
-                                    Centro Cirúrgico
-                                </option>
-
-                                <option
-                                    value="CONSULTORIO"
-                                    <?= $origemPadrao === 'CONSULTORIO'
-                                        ? 'selected'
-                                        : '' ?>
-                                >
-                                    Consultório
-                                </option>
-
-                                <option
-                                    value="SALA_DE_PROCEDIMENTO"
-                                    <?= $origemPadrao === 'SALA_DE_PROCEDIMENTO'
-                                        ? 'selected'
-                                        : '' ?>
-                                >
-                                    Sala de Procedimento
-                                </option>
-
-                                <option
-                                    value="PRONTO_SOCORRO_ADULTO"
-                                    <?= $origemPadrao === 'PRONTO_SOCORRO_ADULTO'
-                                        ? 'selected'
-                                        : '' ?>
-                                >
-                                    Pronto-Socorro Adulto
-                                </option>
-
-                                <option
-                                    value="PRONTO_SOCORRO_INFANTIL"
-                                    <?= $origemPadrao === 'PRONTO_SOCORRO_INFANTIL'
-                                        ? 'selected'
-                                        : '' ?>
-                                >
-                                    Pronto-Socorro Infantil
-                                </option>
-
-                                <option
-                                    value="PRONTO_SOCORRO_ORTOPEDIA"
-                                    <?= $origemPadrao === 'PRONTO_SOCORRO_ORTOPEDIA'
-                                        ? 'selected'
-                                        : '' ?>
-                                >
-                                    Pronto-Socorro Ortopedia
-                                </option>
-
-                                <option
-                                    value="AMBULATORIO"
-                                    <?= $origemPadrao === 'AMBULATORIO'
-                                        ? 'selected'
-                                        : '' ?>
-                                >
-                                    Ambulatório
-                                </option>
-
-                                <option
-                                    value="UNIDADE_DE_INTERNACAO"
-                                    <?= $origemPadrao === 'UNIDADE_DE_INTERNACAO'
-                                        ? 'selected'
-                                        : '' ?>
-                                >
-                                    Unidade de Internação
-                                </option>
-
-                                <option
-                                    value="UTI"
-                                    <?= $origemPadrao === 'UTI'
-                                        ? 'selected'
-                                        : '' ?>
-                                >
-                                    UTI
-                                </option>
-
-                                <option
-                                    value="EXAMES"
-                                    <?= $origemPadrao === 'EXAMES'
-                                        ? 'selected'
-                                        : '' ?>
-                                >
-                                    Setor de Exames
-                                </option>
-
-                                <option
-                                    value="EXTERNO"
-                                    <?= $origemPadrao === 'EXTERNO'
-                                        ? 'selected'
-                                        : '' ?>
-                                >
-                                    Atendimento Externo
-                                </option>
+                                foreach ($origens as $valor => $rotulo):
+                                ?>
+                                    <option
+                                        value="<?= $valor ?>"
+                                        <?= $origemPadrao === $valor
+                                            ? 'selected'
+                                            : '' ?>
+                                    >
+                                        <?= htmlspecialchars(
+                                            $rotulo,
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
                         <div class="form-field">
-                            <label for="convenio">
-                                Convênio
-                            </label>
+                            <label for="convenio">Convênio</label>
 
                             <select
                                 id="convenio"
                                 name="convenio"
                                 required
                             >
-                                <option value="">
-                                    Selecione
-                                </option>
-
+                                <option value="">Selecione</option>
                                 <option value="SUS">SUS</option>
                                 <option value="PARTICULAR">Particular</option>
                                 <option value="UNIMED">Unimed</option>
-                                <option value="BRADESCO SAUDE">
-                                    Bradesco Saúde
-                                </option>
+                                <option value="BRADESCO SAUDE">Bradesco Saúde</option>
                                 <option value="AMIL">Amil</option>
-                                <option value="SULAMERICA">
-                                    SulAmérica
-                                </option>
-                                <option value="NOTREDAME INTERMEDICA">
-                                    NotreDame Intermédica
-                                </option>
-                                <option value="PORTO SAUDE">
-                                    Porto Saúde
-                                </option>
+                                <option value="SULAMERICA">SulAmérica</option>
+                                <option value="NOTREDAME INTERMEDICA">NotreDame Intermédica</option>
+                                <option value="PORTO SAUDE">Porto Saúde</option>
                                 <option value="HAPVIDA">Hapvida</option>
                                 <option value="CASSI">Cassi</option>
                             </select>
@@ -492,54 +426,78 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 
                         <div class="form-field">
                             <label for="especialidade">
-                                Especialidade
+                                Especialidade do médico
                             </label>
 
                             <select
                                 id="especialidade"
                                 name="especialidade"
                                 required
+                                disabled
                             >
                                 <option value="">
-                                    Selecione
+                                    Selecione primeiro o médico responsável
                                 </option>
 
-                                <option value="CLINICA MEDICA">
-                                    Clínica Médica
-                                </option>
+                                <?php
+                                foreach ($medicos as $medico):
+                                    $nomeEspecialidade =
+                                        (string) $medico['especialidade_nome'];
 
-                                <option value="PEDIATRIA">
-                                    Pediatria
-                                </option>
-
-                                <option value="ORTOPEDIA">
-                                    Ortopedia
-                                </option>
-
-                                <option value="CARDIOLOGIA">
-                                    Cardiologia
-                                </option>
-
-                                <option value="NEUROLOGIA">
-                                    Neurologia
-                                </option>
-
-                                <option value="GINECOLOGIA">
-                                    Ginecologia
-                                </option>
-
-                                <option value="CIRURGIA GERAL">
-                                    Cirurgia Geral
-                                </option>
-
-                                <option value="OFTALMOLOGIA">
-                                    Oftalmologia
-                                </option>
-
-                                <option value="OTORRINOLARINGOLOGIA">
-                                    Otorrinolaringologia
-                                </option>
+                                    $valorEspecialidade =
+                                        strtoupper(
+                                            strtr(
+                                                $nomeEspecialidade,
+                                                [
+                                                    'Á' => 'A',
+                                                    'À' => 'A',
+                                                    'Â' => 'A',
+                                                    'Ã' => 'A',
+                                                    'É' => 'E',
+                                                    'Ê' => 'E',
+                                                    'Í' => 'I',
+                                                    'Ó' => 'O',
+                                                    'Ô' => 'O',
+                                                    'Õ' => 'O',
+                                                    'Ú' => 'U',
+                                                    'Ç' => 'C',
+                                                    'á' => 'A',
+                                                    'à' => 'A',
+                                                    'â' => 'A',
+                                                    'ã' => 'A',
+                                                    'é' => 'E',
+                                                    'ê' => 'E',
+                                                    'í' => 'I',
+                                                    'ó' => 'O',
+                                                    'ô' => 'O',
+                                                    'õ' => 'O',
+                                                    'ú' => 'U',
+                                                    'ç' => 'C'
+                                                ]
+                                            )
+                                        );
+                                ?>
+                                    <option
+                                        value="<?= htmlspecialchars(
+                                            $valorEspecialidade,
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>"
+                                        data-especialidade-id="<?= (int) $medico['especialidade_id'] ?>"
+                                    >
+                                        <?= htmlspecialchars(
+                                            $nomeEspecialidade,
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
+
+                            <small>
+                                A especialidade é preenchida automaticamente
+                                conforme o cadastro do médico.
+                            </small>
                         </div>
 
                         <div class="form-field">
@@ -547,19 +505,84 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                                 Profissional responsável
                             </label>
 
-                            <input
-                                type="text"
+                            <select
                                 id="profissionalResponsavel"
-                                name="profissional_responsavel"
-                                placeholder="Nome do profissional"
+                                name="profissional_id"
                                 required
                             >
+                                <option value="">
+                                    Selecione o médico responsável
+                                </option>
+
+                                <?php foreach ($medicos as $medico): ?>
+                                    <?php
+                                    $nomeEspecialidade =
+                                        (string) $medico['especialidade_nome'];
+
+                                    $valorEspecialidade =
+                                        strtoupper(
+                                            strtr(
+                                                $nomeEspecialidade,
+                                                [
+                                                    'Á' => 'A',
+                                                    'À' => 'A',
+                                                    'Â' => 'A',
+                                                    'Ã' => 'A',
+                                                    'É' => 'E',
+                                                    'Ê' => 'E',
+                                                    'Í' => 'I',
+                                                    'Ó' => 'O',
+                                                    'Ô' => 'O',
+                                                    'Õ' => 'O',
+                                                    'Ú' => 'U',
+                                                    'Ç' => 'C',
+                                                    'á' => 'A',
+                                                    'à' => 'A',
+                                                    'â' => 'A',
+                                                    'ã' => 'A',
+                                                    'é' => 'E',
+                                                    'ê' => 'E',
+                                                    'í' => 'I',
+                                                    'ó' => 'O',
+                                                    'ô' => 'O',
+                                                    'õ' => 'O',
+                                                    'ú' => 'U',
+                                                    'ç' => 'C'
+                                                ]
+                                            )
+                                        );
+                                    ?>
+                                    <option
+                                        value="<?= (int) $medico['id'] ?>"
+                                        data-especialidade-id="<?= (int) $medico['especialidade_id'] ?>"
+                                        data-especialidade="<?= htmlspecialchars(
+                                            $valorEspecialidade,
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>"
+                                    >
+                                        <?= htmlspecialchars(
+                                            $medico['nome']
+                                            . ' - CRM '
+                                            . $medico['crm']
+                                            . '/'
+                                            . $medico['uf_crm'],
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        ) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+
+                            <?php if (empty($medicos)): ?>
+                                <small>
+                                    Nenhum médico ativo cadastrado.
+                                </small>
+                            <?php endif; ?>
                         </div>
 
                         <div class="form-field">
-                            <label>
-                                Data e hora de abertura
-                            </label>
+                            <label>Data e hora de abertura</label>
 
                             <input
                                 type="text"
@@ -575,6 +598,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                 <div
                     id="mensagemAtendimento"
                     class="form-message"
+                    role="alert"
                     hidden
                 ></div>
 
@@ -583,6 +607,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
                     <a
                         href="/safe-health/modules/atendimento/recepcao.php"
                         class="cancel-button"
+                        id="btnCancelarAtendimento"
                     >
                         <i class="fa-solid fa-xmark"></i>
                         Cancelar atendimento
@@ -590,11 +615,11 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 
                     <button
                         type="submit"
-                        class="btn btn-primary"
+                        class="create-attendance-button"
                         id="btnCriarAtendimento"
                     >
                         <i class="fa-solid fa-circle-check"></i>
-                        Criar atendimento
+                        <span>Criar atendimento</span>
                     </button>
 
                 </div>
@@ -607,6 +632,6 @@ require_once __DIR__ . '/../../includes/sidebar.php';
 
 </div>
 
-<script src="/safe-health/assets/js/abrir-atendimento.js"></script>
+<script src="/safe-health/assets/js/abrir-atendimento.js?v=4"></script>
 
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

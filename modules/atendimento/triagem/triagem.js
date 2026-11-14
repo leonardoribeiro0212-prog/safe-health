@@ -37,11 +37,15 @@ const botaoCancelar =
 const botaoFinalizar =
     document.getElementById('botaoFinalizar');
 
+const salaTriagem =
+    document.getElementById('salaTriagem');
+
 const toast =
     document.getElementById('toast');
 
 let carregando = false;
 let salvando = false;
+let chamando = false;
 let senhaAtualId = null;
 
 function escaparHtml(valor) {
@@ -88,7 +92,10 @@ function formatarData(data) {
 function formatarTempoEspera(minutos) {
     const totalMinutos = Number(minutos ?? 0);
 
-    if (!Number.isFinite(totalMinutos) || totalMinutos <= 0) {
+    if (
+        !Number.isFinite(totalMinutos) ||
+        totalMinutos <= 0
+    ) {
         return 'Menos de 1 min';
     }
 
@@ -106,6 +113,29 @@ function formatarTempoEspera(minutos) {
     return `${horas}h ${minutosRestantes}min`;
 }
 
+async function lerRespostaJson(resposta) {
+    const texto = await resposta.text();
+
+    if (texto.trim() === '') {
+        throw new Error(
+            'O servidor não retornou uma resposta.'
+        );
+    }
+
+    try {
+        return JSON.parse(texto);
+    } catch {
+        console.error(
+            'Resposta inválida recebida do servidor:',
+            texto
+        );
+
+        throw new Error(
+            'O servidor retornou uma resposta inválida.'
+        );
+    }
+}
+
 function selecionarSenha(
     id,
     numero,
@@ -113,7 +143,10 @@ function selecionarSenha(
 ) {
     const idNumerico = Number(id);
 
-    if (!Number.isInteger(idNumerico) || idNumerico <= 0) {
+    if (
+        !Number.isInteger(idNumerico) ||
+        idNumerico <= 0
+    ) {
         mostrarMensagem(
             'A senha selecionada é inválida.',
             'error'
@@ -144,7 +177,9 @@ function selecionarSenha(
         );
 
     if (linhaSelecionada) {
-        linhaSelecionada.classList.add('selected-row');
+        linhaSelecionada.classList.add(
+            'selected-row'
+        );
     }
 
     document
@@ -157,6 +192,7 @@ function limparSelecao() {
     senhaId.value = '';
 
     senhaSelecionadaResumo.textContent = '---';
+
     senhaSelecionada.textContent =
         'Nenhuma senha selecionada';
 
@@ -267,40 +303,52 @@ function renderizarTabela(senhas) {
                     </td>
 
                     <td>
-                        <button
-                            type="button"
-                            class="select-button"
-                            data-id="${id}"
-                            data-numero="${numero}"
-                            data-fila="${fila}"
-                        >
-                            <i class="fa-solid fa-stethoscope"></i>
-                            Triar
-                        </button>
+                        <div class="triage-row-actions">
+
+                            <button
+                                type="button"
+                                class="call-triage-button"
+                                data-acao="chamar"
+                                data-id="${id}"
+                                data-numero="${numero}"
+                            >
+                                <i class="fa-solid fa-bullhorn"></i>
+                                Chamar
+                            </button>
+
+                            <button
+                                type="button"
+                                class="select-button"
+                                data-acao="triar"
+                                data-id="${id}"
+                                data-numero="${numero}"
+                                data-fila="${fila}"
+                            >
+                                <i class="fa-solid fa-stethoscope"></i>
+                                Triar
+                            </button>
+
+                            <button
+                                type="button"
+                                class="delete-triage-button"
+                                data-acao="excluir"
+                                data-id="${id}"
+                                data-numero="${numero}"
+                            >
+                                <i class="fa-solid fa-trash-can"></i>
+                                Excluir
+                            </button>
+
+                        </div>
                     </td>
                 </tr>
             `;
         })
         .join('');
-
-    tabelaSenhas
-        .querySelectorAll('.select-button')
-        .forEach((botao) => {
-            botao.addEventListener(
-                'click',
-                () => {
-                    selecionarSenha(
-                        botao.dataset.id,
-                        botao.dataset.numero,
-                        botao.dataset.fila
-                    );
-                }
-            );
-        });
 }
 
 async function carregarSenhas() {
-    if (carregando) {
+    if (carregando || chamando) {
         return;
     }
 
@@ -314,11 +362,13 @@ async function carregarSenhas() {
                 headers: {
                     Accept: 'application/json'
                 },
+
                 cache: 'no-store'
             }
         );
 
-        const resultado = await resposta.json();
+        const resultado =
+            await lerRespostaJson(resposta);
 
         if (!resposta.ok || !resultado.sucesso) {
             throw new Error(
@@ -367,12 +417,186 @@ async function carregarSenhas() {
         `;
 
         mostrarMensagem(
-            erro.message,
+            erro instanceof Error
+                ? erro.message
+                : 'Não foi possível carregar as senhas.',
             'error'
         );
     } finally {
         carregando = false;
         botaoAtualizar.disabled = false;
+    }
+}
+
+async function chamarSenha(
+    id,
+    numero,
+    botao
+) {
+    if (chamando) {
+        return;
+    }
+
+    const senhaIdNumerico = Number(id);
+    const sala = String(
+        salaTriagem?.value ?? ''
+    ).trim();
+
+    if (
+        !Number.isInteger(senhaIdNumerico) ||
+        senhaIdNumerico <= 0
+    ) {
+        mostrarMensagem(
+            'A senha informada é inválida.',
+            'error'
+        );
+
+        return;
+    }
+
+    if (sala === '') {
+        mostrarMensagem(
+            'Selecione a sala de triagem.',
+            'error'
+        );
+
+        return;
+    }
+
+    chamando = true;
+
+    const htmlOriginal = botao.innerHTML;
+
+    botao.disabled = true;
+    botao.innerHTML = `
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        Chamando
+    `;
+
+    try {
+        const resposta = await fetch(
+            '/safe-health/modules/atendimento/triagem/chamar-senha.php',
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json'
+                },
+
+                body: JSON.stringify({
+                    senha_id: senhaIdNumerico,
+                    sala
+                })
+            }
+        );
+
+        const resultado =
+            await lerRespostaJson(resposta);
+
+        if (!resposta.ok || !resultado.sucesso) {
+            throw new Error(
+                resultado.mensagem ||
+                'Não foi possível chamar a senha.'
+            );
+        }
+
+        mostrarMensagem(
+            `Senha ${resultado.dados.numero ?? numero} chamada para ${resultado.dados.sala ?? sala}.`
+        );
+
+        botao.innerHTML = `
+            <i class="fa-solid fa-volume-high"></i>
+            Rechamar
+        `;
+
+    } catch (erro) {
+        console.error(erro);
+
+        mostrarMensagem(
+            erro instanceof Error
+                ? erro.message
+                : 'Não foi possível chamar a senha.',
+            'error'
+        );
+
+        botao.innerHTML = htmlOriginal;
+    } finally {
+        chamando = false;
+        botao.disabled = false;
+    }
+}
+
+async function excluirSenhaTriagem(
+    senhaIdValor,
+    numero
+) {
+    const id = Number(senhaIdValor);
+
+    if (!Number.isInteger(id) || id <= 0) {
+        mostrarMensagem(
+            'Senha inválida.',
+            'error'
+        );
+        return;
+    }
+
+    const confirmou = window.confirm(
+        `Tem certeza que deseja excluir a senha ${numero}?\n\n` +
+        'Esta ação só será permitida enquanto a senha estiver aguardando a triagem.'
+    );
+
+    if (!confirmou) {
+        return;
+    }
+
+    try {
+        const resposta = await fetch(
+            '/safe-health/modules/atendimento/triagem/excluir-senha.php',
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json'
+                },
+
+                body: JSON.stringify({
+                    senha_id: id
+                })
+            }
+        );
+
+        const resultado =
+            await lerRespostaJson(resposta);
+
+        if (!resposta.ok || !resultado.sucesso) {
+            throw new Error(
+                resultado.mensagem ||
+                'Não foi possível excluir a senha.'
+            );
+        }
+
+        if (senhaAtualId === id) {
+            limparSelecao();
+        }
+
+        mostrarMensagem(
+            resultado.mensagem ||
+            `Senha ${numero} excluída com sucesso.`
+        );
+
+        await carregarSenhas();
+
+    } catch (erro) {
+        console.error(erro);
+
+        mostrarMensagem(
+            erro instanceof Error
+                ? erro.message
+                : 'Não foi possível excluir a senha.',
+            'error'
+        );
     }
 }
 
@@ -423,7 +647,8 @@ async function finalizarTriagem(evento) {
             }
         );
 
-        const resultado = await resposta.json();
+        const resultado =
+            await lerRespostaJson(resposta);
 
         if (!resposta.ok || !resultado.sucesso) {
             throw new Error(
@@ -444,7 +669,9 @@ async function finalizarTriagem(evento) {
         console.error(erro);
 
         mostrarMensagem(
-            erro.message,
+            erro instanceof Error
+                ? erro.message
+                : 'Não foi possível finalizar a triagem.',
             'error'
         );
     } finally {
@@ -452,6 +679,46 @@ async function finalizarTriagem(evento) {
         botaoFinalizar.disabled = false;
     }
 }
+
+tabelaSenhas.addEventListener(
+    'click',
+    (evento) => {
+        const botao = evento.target.closest(
+            'button[data-acao]'
+        );
+
+        if (!botao || botao.disabled) {
+            return;
+        }
+
+        if (botao.dataset.acao === 'chamar') {
+            chamarSenha(
+                botao.dataset.id,
+                botao.dataset.numero,
+                botao
+            );
+
+            return;
+        }
+
+        if (botao.dataset.acao === 'triar') {
+            selecionarSenha(
+                botao.dataset.id,
+                botao.dataset.numero,
+                botao.dataset.fila
+            );
+
+            return;
+        }
+
+        if (botao.dataset.acao === 'excluir') {
+            excluirSenhaTriagem(
+                botao.dataset.id,
+                botao.dataset.numero
+            );
+        }
+    }
+);
 
 botaoAtualizar.addEventListener(
     'click',

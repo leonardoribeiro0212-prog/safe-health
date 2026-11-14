@@ -35,7 +35,8 @@ $telasUsuario = buscarMenuUsuario(
     </title>
 
     <link
-    <link rel="stylesheet" href="/safe-health/assets/css/app.css?v=4">
+        rel="stylesheet"
+        href="/safe-health/assets/css/app.css?v=5"
     >
 
     <link

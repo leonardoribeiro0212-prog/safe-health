@@ -12,6 +12,15 @@ foreach ($telasPermitidas as $tela) {
     $menuAgrupado[$modulo][] = $tela;
 }
 
+/* Ordena somente os módulos principais; mantém a ordem interna das telas. */
+uksort($menuAgrupado, static function (string $a, string $b): int {
+    $normalizar = static function (string $texto): string {
+        $ascii = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $texto);
+        return strtolower($ascii !== false ? $ascii : $texto);
+    };
+    return strnatcasecmp($normalizar($a), $normalizar($b));
+});
+
 $caminhoAtual = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 $iconesModulos = [
@@ -105,6 +114,26 @@ function moduloEstaAtivo(array $telas, string $caminhoAtual): bool
                     </a>
 
                 <?php endforeach; ?>
+
+            <?php elseif ($modulo === 'Prontuário'): ?>
+
+                <?php
+                $urlProntuario = '/safe-health/modules/prontuario/atendimentos.php';
+                $prontuarioAtivo = strpos($caminhoAtual, '/safe-health/modules/prontuario/') === 0;
+                ?>
+
+                <a
+                    href="<?= htmlspecialchars($urlProntuario) ?>"
+                    class="sidebar-link <?= $prontuarioAtivo ? 'active' : '' ?>"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <span class="sidebar-icon">
+                        <i class="fa-solid <?= htmlspecialchars($iconeModulo) ?>"></i>
+                    </span>
+
+                    <span>Prontuário</span>
+                </a>
 
             <?php else: ?>
 

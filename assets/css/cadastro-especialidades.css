@@ -1,0 +1,279 @@
+.specialty-page {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: 24px;
+}
+
+.specialty-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.specialty-eyebrow {
+    display: block;
+    margin-bottom: 6px;
+    color: #087f9b;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.specialty-heading h2 {
+    margin: 0 0 6px;
+    color: #172f3f;
+}
+
+.specialty-heading p,
+.specialty-search-card p,
+.specialty-section-title p {
+    margin: 0;
+    color: #6b7f8d;
+    font-size: 13px;
+}
+
+.specialty-mode-badge {
+    padding: 9px 13px;
+    border: 1px solid #bfdbfe;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.specialty-mode-badge.editing {
+    border-color: #86efac;
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.specialty-search-card,
+.specialty-card {
+    padding: 22px;
+    border: 1px solid #dce5ec;
+    border-radius: 17px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(22, 70, 85, .05);
+}
+
+.specialty-search-card h3,
+.specialty-section-title h3 {
+    margin: 0 0 5px;
+    color: #173448;
+}
+
+.specialty-search-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.specialty-search-input {
+    position: relative;
+    flex: 1;
+}
+
+.specialty-search-input i {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    color: #7b8c98;
+}
+
+.specialty-search-input input {
+    width: 100%;
+    min-height: 46px;
+    padding: 0 14px 0 42px;
+    border: 1px solid #cad7df;
+    border-radius: 10px;
+    font: inherit;
+}
+
+.specialty-search-button,
+.specialty-secondary-button,
+.specialty-save-button {
+    display: inline-flex;
+    min-height: 46px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 17px;
+    border-radius: 10px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.specialty-search-button,
+.specialty-save-button {
+    border: 1px solid #087f9b;
+    background: #087f9b;
+    color: #ffffff;
+}
+
+.specialty-secondary-button {
+    border: 1px solid #cad7df;
+    background: #ffffff;
+    color: #405566;
+}
+
+.specialty-search-results {
+    margin-top: 13px;
+    border: 1px solid #dce5ec;
+    border-radius: 11px;
+    overflow: hidden;
+}
+
+.specialty-result-item {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 13px 15px;
+    border: 0;
+    border-bottom: 1px solid #edf2f5;
+    background: #ffffff;
+    text-align: left;
+    cursor: pointer;
+}
+
+.specialty-result-item:hover {
+    background: #f6fafb;
+}
+
+.specialty-result-item strong {
+    display: block;
+    color: #173448;
+}
+
+.specialty-result-item span {
+    color: #718492;
+    font-size: 12px;
+}
+
+.specialty-result-status {
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-weight: 800;
+}
+
+.specialty-result-status.active {
+    background: #e9f8ef;
+    color: #16835d;
+}
+
+.specialty-result-status.inactive {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.specialty-result-empty {
+    padding: 18px;
+    text-align: center;
+    color: #718492;
+}
+
+.specialty-section-title {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 20px;
+}
+
+.specialty-section-icon {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border-radius: 13px;
+    background: #e9f5f8;
+    color: #087f9b;
+}
+
+.specialty-form-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.specialty-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.specialty-field.col-4 {
+    grid-column: span 4;
+}
+
+.specialty-field.col-8 {
+    grid-column: span 8;
+}
+
+.specialty-field label {
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.specialty-field label span {
+    color: #dc2626;
+}
+
+.specialty-field input,
+.specialty-field select {
+    width: 100%;
+    min-height: 45px;
+    padding: 0 12px;
+    border: 1px solid #cad7df;
+    border-radius: 10px;
+    background: #ffffff;
+    font: inherit;
+}
+
+.specialty-field small {
+    color: #718492;
+    line-height: 1.4;
+}
+
+.specialty-message {
+    padding: 13px 15px;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.specialty-message.success {
+    border: 1px solid #86efac;
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.specialty-message.error {
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.specialty-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+@media (max-width: 850px) {
+    .specialty-heading,
+    .specialty-search-row {
+        flex-direction: column;
+    }
+
+    .specialty-field.col-4,
+    .specialty-field.col-8 {
+        grid-column: span 12;
+    }
+}

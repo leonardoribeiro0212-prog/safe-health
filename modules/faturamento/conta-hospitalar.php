@@ -931,11 +931,309 @@ if (
     $contaId === null ||
     $contaId <= 0
 ) {
-    http_response_code(422);
+    /*
+    |--------------------------------------------------------------------------
+    | Lista de contas hospitalares
+    |--------------------------------------------------------------------------
+    |
+    | Quando o usuário acessa a opção pelo menu do ERP, ainda não existe uma
+    | conta específica selecionada. Nesse caso, mostramos a lista de contas e
+    | cada botão monta a URL correta com o respectivo conta_id.
+    |
+    */
 
-    exit(
-        'Informe uma conta válida na URL. Exemplo: ?conta_id=1'
+    $pesquisa = trim(
+        (string) ($_GET['q'] ?? '')
     );
+
+    $sqlListaContas = "
+        SELECT
+            ch.id,
+            ch.atendimento_id,
+            ch.status,
+            ch.valor_bruto,
+            ch.valor_liquido,
+            ch.data_abertura,
+            p.nome AS paciente_nome,
+            a.numero_atendimento,
+            a.convenio
+        FROM contas_hospitalares ch
+        INNER JOIN pacientes p
+            ON p.id = ch.paciente_id
+        INNER JOIN atendimentos a
+            ON a.id = ch.atendimento_id
+    ";
+
+    $parametrosLista = [];
+
+    if ($pesquisa !== '') {
+        $pesquisaSemHash = ltrim(
+            $pesquisa,
+            '#'
+        );
+
+        $sqlListaContas .= "
+            WHERE
+                CAST(ch.id AS CHAR) LIKE :conta
+                OR a.numero_atendimento LIKE :atendimento
+        ";
+
+        $parametrosLista = [
+            ':conta' => '%' . $pesquisaSemHash . '%',
+            ':atendimento' => '%' . $pesquisa . '%'
+        ];
+    }
+
+    $sqlListaContas .= "
+        ORDER BY ch.id DESC
+    ";
+
+    $stmtListaContas = $pdo->prepare(
+        $sqlListaContas
+    );
+
+    $stmtListaContas->execute(
+        $parametrosLista
+    );
+
+    $contasHospitalares = $stmtListaContas->fetchAll(
+        PDO::FETCH_ASSOC
+    );
+
+    $tituloPagina = 'Contas Hospitalares';
+
+    require_once __DIR__ . '/../../includes/header.php';
+    require_once __DIR__ . '/../../includes/sidebar.php';
+    ?>
+
+    <div class="app-content">
+        <?php require_once __DIR__ . '/../../includes/topbar.php'; ?>
+
+        <main class="main-content">
+            <section style="
+                padding: 24px;
+                border: 1px solid #dfe7eb;
+                border-radius: 16px;
+                background: #ffffff;
+                box-shadow: 0 8px 24px rgba(22,70,85,.06);
+            ">
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                    gap:16px;
+                    margin-bottom:20px;
+                ">
+                    <div>
+                        <h2 style="margin:0 0 6px;">Contas Hospitalares</h2>
+                        <p style="margin:0;color:#64748b;">
+                            Selecione uma conta para visualizar seus dados e lançamentos.
+                        </p>
+                    </div>
+                </div>
+
+                <form
+                    method="GET"
+                    action="/safe-health/modules/faturamento/conta-hospitalar.php"
+                    style="
+                        display:flex;
+                        align-items:end;
+                        gap:12px;
+                        flex-wrap:wrap;
+                        margin-bottom:20px;
+                    "
+                >
+                    <div style="
+                        flex:1;
+                        min-width:280px;
+                    ">
+                        <label
+                            for="pesquisaConta"
+                            style="
+                                display:block;
+                                margin-bottom:7px;
+                                color:#334155;
+                                font-size:14px;
+                                font-weight:700;
+                            "
+                        >
+                            Pesquisar conta
+                        </label>
+
+                        <div style="position:relative;">
+                            <i
+                                class="fa-solid fa-magnifying-glass"
+                                style="
+                                    position:absolute;
+                                    left:14px;
+                                    top:50%;
+                                    transform:translateY(-50%);
+                                    color:#7b8c98;
+                                "
+                            ></i>
+
+                            <input
+                                type="text"
+                                id="pesquisaConta"
+                                name="q"
+                                value="<?= htmlspecialchars(
+                                    $pesquisa,
+                                    ENT_QUOTES,
+                                    'UTF-8'
+                                ) ?>"
+                                placeholder="Digite o nº da conta ou do atendimento"
+                                autocomplete="off"
+                                style="
+                                    width:100%;
+                                    min-height:46px;
+                                    padding:0 14px 0 42px;
+                                    border:1px solid #cfdbe3;
+                                    border-radius:10px;
+                                    background:#ffffff;
+                                    color:#172033;
+                                    font:inherit;
+                                    outline:none;
+                                "
+                            >
+                        </div>
+                    </div>
+
+                    <button
+                        type="submit"
+                        style="
+                            min-height:46px;
+                            padding:0 18px;
+                            border:0;
+                            border-radius:10px;
+                            background:#176b87;
+                            color:#ffffff;
+                            font-weight:700;
+                            cursor:pointer;
+                        "
+                    >
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        Pesquisar
+                    </button>
+
+                    <?php if ($pesquisa !== ''): ?>
+                        <a
+                            href="/safe-health/modules/faturamento/conta-hospitalar.php"
+                            style="
+                                display:inline-flex;
+                                min-height:46px;
+                                align-items:center;
+                                justify-content:center;
+                                gap:8px;
+                                padding:0 18px;
+                                border:1px solid #cfdbe3;
+                                border-radius:10px;
+                                background:#ffffff;
+                                color:#334155;
+                                text-decoration:none;
+                                font-weight:700;
+                            "
+                        >
+                            <i class="fa-solid fa-xmark"></i>
+                            Limpar
+                        </a>
+                    <?php endif; ?>
+                </form>
+
+                <?php if ($pesquisa !== ''): ?>
+                    <div style="
+                        margin:-4px 0 16px;
+                        color:#64748b;
+                        font-size:14px;
+                    ">
+                        Resultado da pesquisa por:
+                        <strong>
+                            <?= htmlspecialchars(
+                                $pesquisa,
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>
+                        </strong>
+                    </div>
+                <?php endif; ?>
+
+                <div style="overflow-x:auto;">
+                    <table style="
+                        width:100%;
+                        border-collapse:collapse;
+                        min-width:900px;
+                    ">
+                        <thead>
+                            <tr style="background:#f5f8fa;text-align:left;">
+                                <th style="padding:12px;border-bottom:1px solid #dfe7eb;">Conta</th>
+                                <th style="padding:12px;border-bottom:1px solid #dfe7eb;">Atendimento</th>
+                                <th style="padding:12px;border-bottom:1px solid #dfe7eb;">Paciente</th>
+                                <th style="padding:12px;border-bottom:1px solid #dfe7eb;">Convênio</th>
+                                <th style="padding:12px;border-bottom:1px solid #dfe7eb;">Status</th>
+                                <th style="padding:12px;border-bottom:1px solid #dfe7eb;">Valor líquido</th>
+                                <th style="padding:12px;border-bottom:1px solid #dfe7eb;">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!$contasHospitalares): ?>
+                                <tr>
+                                    <td colspan="7" style="padding:24px;text-align:center;color:#64748b;">
+                                        <?= $pesquisa !== ''
+                                            ? 'Nenhuma conta corresponde à pesquisa informada.'
+                                            : 'Nenhuma Conta Hospitalar foi encontrada.' ?>
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($contasHospitalares as $contaLista): ?>
+                                    <tr>
+                                        <td style="padding:12px;border-bottom:1px solid #edf1f3;">
+                                            #<?= (int) $contaLista['id'] ?>
+                                        </td>
+                                        <td style="padding:12px;border-bottom:1px solid #edf1f3;">
+                                            <?= htmlspecialchars((string) $contaLista['numero_atendimento'], ENT_QUOTES, 'UTF-8') ?>
+                                        </td>
+                                        <td style="padding:12px;border-bottom:1px solid #edf1f3;">
+                                            <?= htmlspecialchars((string) $contaLista['paciente_nome'], ENT_QUOTES, 'UTF-8') ?>
+                                        </td>
+                                        <td style="padding:12px;border-bottom:1px solid #edf1f3;">
+                                            <?= htmlspecialchars((string) ($contaLista['convenio'] ?: 'Particular'), ENT_QUOTES, 'UTF-8') ?>
+                                        </td>
+                                        <td style="padding:12px;border-bottom:1px solid #edf1f3;">
+                                            <?= htmlspecialchars((string) $contaLista['status'], ENT_QUOTES, 'UTF-8') ?>
+                                        </td>
+                                        <td style="padding:12px;border-bottom:1px solid #edf1f3;">
+                                            R$ <?= number_format((float) $contaLista['valor_liquido'], 2, ',', '.') ?>
+                                        </td>
+                                        <td style="padding:12px;border-bottom:1px solid #edf1f3;">
+                                            <a
+                                                href="/safe-health/modules/faturamento/conta-hospitalar.php?conta_id=<?= (int) $contaLista['id'] ?>"
+                                                style="
+                                                    display:inline-flex;
+                                                    align-items:center;
+                                                    gap:8px;
+                                                    padding:9px 14px;
+                                                    border-radius:8px;
+                                                    background:#176b87;
+                                                    color:#fff;
+                                                    text-decoration:none;
+                                                    font-weight:700;
+                                                "
+                                            >
+                                                <i class="fa-solid fa-folder-open"></i>
+                                                Abrir conta
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+    <?php
+    require_once __DIR__ . '/../../includes/footer.php';
+    exit;
 }
 
 /*

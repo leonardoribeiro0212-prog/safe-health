@@ -65,6 +65,7 @@ try {
         WHERE s.status = 'AGUARDANDO_TRIAGEM'
         AND f.tipo = 'URGENCIA'
         AND f.ativa = 1
+        AND DATE(COALESCE(s.emitida_em, s.data_emissao)) = CURDATE()
 
         ORDER BY
             s.emitida_em ASC,

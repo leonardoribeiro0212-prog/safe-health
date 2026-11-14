@@ -5,28 +5,27 @@ declare(strict_types=1);
 session_start();
 
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store');
 
 require_once __DIR__ . '/../../../../config/database.php';
+require_once __DIR__ . '/cpf.php';
 
 try {
-    $cpf = preg_replace(
-        '/\D/',
-        '',
-        (string) ($_GET['cpf'] ?? '')
-    );
+    $cpf = normalizarCpf((string) ($_GET['cpf'] ?? ''));
 
-    if (strlen($cpf) !== 11) {
+    if (!validarCpf($cpf)) {
         http_response_code(422);
 
         echo json_encode([
             'sucesso' => false,
-            'mensagem' => 'Informe um CPF com 11 números.'
+            'mensagem' => 'CPF inválido. Verifique os números informados.'
         ]);
 
         exit;
     }
 
-    $sql = "
+    $stmt = $pdo->prepare(
+        "
         SELECT
             id,
             nome,
@@ -37,14 +36,18 @@ try {
             telefone,
             email,
             cartao_sus,
+            cep,
+            endereco,
+            numero,
+            complemento,
+            bairro,
             cidade,
             estado
         FROM pacientes
         WHERE cpf = :cpf
         LIMIT 1
-    ";
-
-    $stmt = $pdo->prepare($sql);
+        "
+    );
 
     $stmt->execute([
         ':cpf' => $cpf
@@ -62,11 +65,15 @@ try {
         exit;
     }
 
-    echo json_encode([
-        'sucesso' => true,
-        'encontrado' => true,
-        'paciente' => $paciente
-    ]);
+    echo json_encode(
+        [
+            'sucesso' => true,
+            'encontrado' => true,
+            'paciente' => $paciente
+        ],
+        JSON_UNESCAPED_UNICODE |
+        JSON_UNESCAPED_SLASHES
+    );
 } catch (Throwable $erro) {
     http_response_code(500);
 

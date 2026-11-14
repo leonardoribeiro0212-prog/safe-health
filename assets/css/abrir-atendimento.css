@@ -1,111 +1,120 @@
 .opening-page {
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 28px;
 }
 
 .page-heading {
     display: flex;
-    justify-content: space-between;
     align-items: flex-start;
+    justify-content: space-between;
     gap: 24px;
-    margin-bottom: 28px;
 }
 
-.page-eyebrow {
+.page-eyebrow,
+.section-heading span,
+.card-title span,
+.reference-card span,
+.info-field span {
     display: block;
-    margin-bottom: 8px;
-    color: #087a98;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 1.2px;
+    color: #64748b;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
 }
 
 .page-heading h2 {
-    margin: 0;
-    color: #172b3a;
-    font-size: 30px;
+    margin: 6px 0 8px;
+    color: #0f172a;
+    font-size: 1.8rem;
 }
 
 .page-heading p {
-    margin: 8px 0 0;
-    color: #697b88;
-    font-size: 16px;
+    max-width: 680px;
+    margin: 0;
+    color: #64748b;
+    line-height: 1.55;
 }
 
-.opening-reference {
-    display: flex;
+.opening-references {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(170px, 1fr));
     gap: 12px;
+    min-width: 360px;
 }
 
-.opening-reference>div {
-    min-width: 130px;
-    padding: 18px 22px;
-    border: 1px solid #dbe5eb;
-    border-radius: 16px;
+.reference-card {
+    padding: 16px 18px;
+    border: 1px solid #dbe3ee;
+    border-radius: 14px;
     background: #ffffff;
-    box-shadow: 0 10px 30px rgba(22, 48, 66, 0.07);
-    text-align: center;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
 }
 
-.opening-reference span {
+.reference-card strong {
     display: block;
-    margin-bottom: 5px;
-    color: #71828e;
-    font-size: 13px;
+    margin-top: 7px;
+    color: #0f172a;
+    font-size: 1.1rem;
 }
 
-.opening-reference strong {
-    color: #087a98;
-    font-size: 21px;
+.atendimento-reference {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+}
+
+.atendimento-reference strong {
+    color: #1d4ed8;
+}
+
+.atendimento-reference.created {
+    border-color: #86efac;
+    background: #f0fdf4;
+}
+
+.atendimento-reference.created strong {
+    color: #15803d;
 }
 
 .opening-form {
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 20px;
 }
 
 .form-card {
-    padding: 28px 30px;
-    border: 1px solid #dbe5eb;
-    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
     background: #ffffff;
-    box-shadow: 0 12px 34px rgba(22, 48, 66, 0.07);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
 }
 
 .card-title {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 14px;
+    margin-bottom: 22px;
 }
 
 .card-title-icon {
-    display: flex;
-    width: 54px;
-    height: 54px;
-    align-items: center;
-    justify-content: center;
-    border-radius: 15px;
-    background: #e1f6ef;
-    color: #07885f;
-    font-size: 22px;
-}
-
-.card-title span,
-.section-heading span {
-    color: #07885f;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
+    display: grid;
+    width: 46px;
+    height: 46px;
+    place-items: center;
+    border-radius: 14px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 1.1rem;
 }
 
 .card-title h3,
 .section-heading h3 {
     margin: 4px 0 0;
-    color: #172b3a;
-    font-size: 21px;
+    color: #0f172a;
+    font-size: 1.15rem;
 }
 
 .patient-grid,
@@ -117,26 +126,21 @@
 
 .info-field {
     min-height: 78px;
-    padding: 16px 18px;
-    border: 1px solid #dce6ec;
-    border-radius: 14px;
-    background: #f5f8fa;
-}
-
-.info-field span {
-    display: block;
-    margin-bottom: 6px;
-    color: #70818d;
-    font-size: 13px;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    background: #f8fafc;
 }
 
 .info-field strong {
-    color: #172b3a;
-    font-size: 15px;
+    display: block;
+    margin-top: 7px;
+    color: #1e293b;
+    overflow-wrap: anywhere;
 }
 
 .section-heading {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .form-field {
@@ -146,22 +150,21 @@
 }
 
 .form-field label {
-    color: #263c4b;
-    font-size: 14px;
+    color: #334155;
+    font-size: 0.9rem;
     font-weight: 700;
 }
 
 .form-field input,
 .form-field select {
     width: 100%;
-    min-height: 50px;
-    padding: 0 15px;
-    border: 1px solid #d4e0e7;
-    border-radius: 12px;
+    min-height: 46px;
+    padding: 0 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 11px;
     background: #ffffff;
-    color: #172b3a;
-    font-family: inherit;
-    font-size: 15px;
+    color: #0f172a;
+    font: inherit;
     outline: none;
     transition:
         border-color 0.2s ease,
@@ -170,85 +173,104 @@
 
 .form-field input:focus,
 .form-field select:focus {
-    border-color: #087a98;
-    box-shadow: 0 0 0 3px rgba(8, 122, 152, 0.12);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .form-field input[readonly] {
-    background: #f3f6f8;
-    color: #617480;
-    cursor: not-allowed;
+    background: #f8fafc;
+    color: #64748b;
 }
 
 .form-message {
-    padding: 15px 18px;
+    padding: 14px 16px;
+    border: 1px solid transparent;
     border-radius: 12px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
-.form-message.loading {
-    border: 1px solid #b9d9e3;
-    background: #eaf6fa;
-    color: #086f8b;
-}
-
-.form-message.error {
-    border: 1px solid #f1bfc4;
-    background: #fff0f1;
-    color: #a42431;
+.form-message.info {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+    color: #1d4ed8;
 }
 
 .form-message.success {
-    border: 1px solid #afe0cd;
-    background: #ebfaf4;
-    color: #087451;
+    border-color: #86efac;
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.form-message.error {
+    border-color: #fecaca;
+    background: #fef2f2;
+    color: #b91c1c;
 }
 
 .form-actions {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
-    gap: 14px;
-    padding-bottom: 25px;
+    gap: 12px;
 }
 
 .cancel-button,
-.submit-button {
+.create-attendance-button {
     display: inline-flex;
-    min-height: 52px;
+    min-height: 46px;
     align-items: center;
     justify-content: center;
     gap: 9px;
-    padding: 0 22px;
-    border-radius: 12px;
-    font-family: inherit;
-    font-size: 15px;
+    padding: 0 18px;
+    border-radius: 11px;
     font-weight: 800;
     text-decoration: none;
     cursor: pointer;
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease,
+        box-shadow 0.15s ease;
 }
 
 .cancel-button {
-    border: 1px solid #d2dde4;
+    border: 1px solid #cbd5e1;
     background: #ffffff;
-    color: #263c4b;
+    color: #475569;
 }
 
-.submit-button {
-    border: 1px solid #087a98;
-    background: #087a98;
+.create-attendance-button {
+    border: 1px solid #2563eb;
+    background: #2563eb;
     color: #ffffff;
+    font: inherit;
 }
 
-.submit-button:hover {
-    background: #066d88;
+.cancel-button:hover,
+.create-attendance-button:hover {
+    transform: translateY(-1px);
 }
 
-.submit-button:disabled {
-    opacity: 0.65;
+.create-attendance-button:hover {
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
+}
+
+.create-attendance-button:disabled,
+.cancel-button.disabled {
+    pointer-events: none;
     cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
 }
 
-@media (max-width: 1050px) {
+@media (max-width: 1100px) {
+    .page-heading {
+        flex-direction: column;
+    }
+
+    .opening-references {
+        width: 100%;
+        min-width: 0;
+    }
 
     .patient-grid,
     .form-grid {
@@ -256,34 +278,24 @@
     }
 }
 
-@media (max-width: 720px) {
-    .page-heading {
-        flex-direction: column;
+@media (max-width: 700px) {
+    .opening-page {
+        padding: 18px;
     }
 
-    .opening-reference {
-        width: 100%;
-    }
-
-    .opening-reference>div {
-        flex: 1;
-    }
-
+    .opening-references,
     .patient-grid,
     .form-grid {
         grid-template-columns: 1fr;
     }
 
-    .form-card {
-        padding: 22px 18px;
-    }
-
     .form-actions {
+        align-items: stretch;
         flex-direction: column-reverse;
     }
 
     .cancel-button,
-    .submit-button {
+    .create-attendance-button {
         width: 100%;
     }
 }

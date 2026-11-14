@@ -76,14 +76,38 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
                             </p>
                         </div>
 
-                        <button
-                            type="button"
-                            class="refresh-button"
-                            id="botaoAtualizar"
-                        >
-                            <i class="fa-solid fa-rotate"></i>
-                            Atualizar
-                        </button>
+                        <div class="triage-toolbar-actions">
+
+                            <div class="triage-room-field">
+                                <label for="salaTriagem">
+                                    Sala
+                                </label>
+
+                                <select id="salaTriagem">
+                                    <option value="Sala de Triagem 01">
+                                        Sala de Triagem 01
+                                    </option>
+
+                                    <option value="Sala de Triagem 02">
+                                        Sala de Triagem 02
+                                    </option>
+
+                                    <option value="Sala de Triagem 03">
+                                        Sala de Triagem 03
+                                    </option>
+                                </select>
+                            </div>
+
+                            <button
+                                type="button"
+                                class="refresh-button"
+                                id="botaoAtualizar"
+                            >
+                                <i class="fa-solid fa-rotate"></i>
+                                Atualizar
+                            </button>
+
+                        </div>
 
                     </div>
 

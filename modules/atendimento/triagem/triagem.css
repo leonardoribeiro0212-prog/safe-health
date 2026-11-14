@@ -447,3 +447,255 @@
         width: 100%;
     }
 }
+
+/* Chamada da senha para o painel da triagem */
+
+.triage-toolbar-actions {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.triage-room-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.triage-room-field label {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.triage-room-field select {
+    min-width: 190px;
+    height: 38px;
+    padding: 0 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    outline: none;
+    color: #172033;
+    background: #ffffff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.triage-room-field select:focus {
+    border-color: #0f766e;
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+.triage-row-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.call-triage-button {
+    display: inline-flex;
+    min-width: 92px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 13px;
+    border: 0;
+    border-radius: 10px;
+    color: #ffffff;
+    background: #2563eb;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease,
+        background 0.15s ease;
+}
+
+.call-triage-button:hover {
+    transform: translateY(-1px);
+}
+
+.call-triage-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    transform: none;
+}
+
+@media (max-width: 850px) {
+    .triage-toolbar-actions {
+        width: 100%;
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .triage-room-field select,
+    .triage-toolbar-actions .refresh-button {
+        width: 100%;
+    }
+
+    .triage-row-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}
+
+
+.delete-triage-button {
+    display: inline-flex;
+    min-width: 92px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 13px;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    color: #b91c1c;
+    background: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        transform 0.15s ease,
+        opacity 0.15s ease,
+        background 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.delete-triage-button:hover {
+    transform: translateY(-1px);
+    background: #fef2f2;
+    border-color: #fca5a5;
+}
+
+.delete-triage-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    transform: none;
+}
+
+
+/* =========================================================
+   AJUSTE RESPONSIVO - AÇÕES DA FILA DE TRIAGEM
+   ========================================================= */
+
+/*
+ * Evita que a coluna da fila esconda o terceiro botão.
+ * O conteúdo continua lado a lado em monitores maiores,
+ * mas a fila recebe espaço suficiente para Chamar/Triar/Excluir.
+ */
+.triagem-content {
+    grid-template-columns:
+        minmax(610px, 1fr)
+        minmax(500px, 1.15fr);
+}
+
+/*
+ * A tabela pode usar toda a largura disponível sem cortar
+ * o conteúdo da coluna Ação.
+ */
+.queue-section {
+    min-width: 0;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table-container table {
+    min-width: 660px;
+}
+
+/*
+ * Reduz um pouco os espaçamentos horizontais da tabela.
+ */
+.table-container th {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.table-container td {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+/*
+ * Mantém os três botões na mesma linha sempre que houver espaço.
+ */
+.triage-row-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+/*
+ * Os três botões passam a ser mais compactos.
+ */
+.call-triage-button,
+.select-button,
+.delete-triage-button {
+    min-width: 0;
+    flex: 0 0 auto;
+    padding: 8px 10px;
+    gap: 6px;
+    font-size: 12px;
+}
+
+/*
+ * Em resoluções intermediárias, permitimos quebra dos botões
+ * antes de esconder ou cortar qualquer ação.
+ */
+@media (max-width: 1500px) {
+    .triagem-content {
+        grid-template-columns:
+            minmax(560px, .95fr)
+            minmax(480px, 1.05fr);
+        gap: 16px;
+    }
+
+    .triage-row-actions {
+        flex-wrap: wrap;
+    }
+}
+
+/*
+ * Se a área útil ficar menor, empilha fila e formulário.
+ * Isso mantém a tela utilizável em 100% de zoom.
+ */
+@media (max-width: 1250px) {
+    .triagem-content {
+        grid-template-columns: 1fr;
+    }
+
+    .table-container table {
+        min-width: 700px;
+    }
+
+    .triage-row-actions {
+        flex-wrap: nowrap;
+    }
+}
+
+/*
+ * Tablets/celulares: ações empilhadas e ocupando a largura.
+ */
+@media (max-width: 850px) {
+    .triage-row-actions {
+        flex-direction: column;
+        align-items: stretch;
+        white-space: normal;
+    }
+
+    .call-triage-button,
+    .select-button,
+    .delete-triage-button {
+        width: 100%;
+        min-width: 100%;
+    }
+}

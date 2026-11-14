@@ -21,29 +21,21 @@ function responderJson(
             'mensagem' => $mensagem,
             'dados' => $dados
         ],
-        JSON_UNESCAPED_UNICODE
+        JSON_UNESCAPED_UNICODE |
+        JSON_UNESCAPED_SLASHES
     );
 
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    responderJson(
-        false,
-        'Método não permitido.',
-        [],
-        405
-    );
+    responderJson(false, 'Método não permitido.', [], 405);
 }
 
 $conteudo = file_get_contents('php://input');
+$entrada = json_decode($conteudo ?: '', true);
 
-$dadosRecebidos = json_decode(
-    $conteudo ?: '',
-    true
-);
-
-if (!is_array($dadosRecebidos)) {
+if (!is_array($entrada)) {
     responderJson(
         false,
         'Os dados enviados são inválidos.',
@@ -52,49 +44,34 @@ if (!is_array($dadosRecebidos)) {
     );
 }
 
-$pacienteId = (int) (
-    $dadosRecebidos['paciente_id'] ?? 0
+$pacienteId = filter_var(
+    $entrada['paciente_id'] ?? null,
+    FILTER_VALIDATE_INT
 );
 
-$senhaId = (int) (
-    $dadosRecebidos['senha_id'] ?? 0
+$senhaId = filter_var(
+    $entrada['senha_id'] ?? null,
+    FILTER_VALIDATE_INT
 );
 
 $tipoAtendimento = strtoupper(
-    trim(
-        (string) (
-            $dadosRecebidos['tipo_atendimento'] ?? ''
-        )
-    )
+    trim((string) ($entrada['tipo_atendimento'] ?? ''))
 );
 
 $origem = strtoupper(
-    trim(
-        (string) (
-            $dadosRecebidos['origem'] ?? ''
-        )
-    )
+    trim((string) ($entrada['origem'] ?? ''))
 );
 
 $convenio = trim(
-    (string) (
-        $dadosRecebidos['convenio'] ?? ''
-    )
+    (string) ($entrada['convenio'] ?? '')
 );
 
-$especialidade = trim(
-    (string) (
-        $dadosRecebidos['especialidade'] ?? ''
-    )
+$profissionalId = filter_var(
+    $entrada['profissional_id'] ?? null,
+    FILTER_VALIDATE_INT
 );
 
-$profissionalResponsavel = trim(
-    (string) (
-        $dadosRecebidos['profissional_responsavel'] ?? ''
-    )
-);
-
-$tiposAtendimentoPermitidos = [
+$tiposPermitidos = [
     'URGENCIA',
     'AMBULATORIO',
     'INTERNACAO',
@@ -117,7 +94,14 @@ $origensPermitidas = [
     'EXTERNO'
 ];
 
-if ($pacienteId <= 0 || $senhaId <= 0) {
+if (
+    $pacienteId === false ||
+    $pacienteId === null ||
+    $pacienteId <= 0 ||
+    $senhaId === false ||
+    $senhaId === null ||
+    $senhaId <= 0
+) {
     responderJson(
         false,
         'Paciente ou senha inválidos.',
@@ -126,13 +110,7 @@ if ($pacienteId <= 0 || $senhaId <= 0) {
     );
 }
 
-if (
-    !in_array(
-        $tipoAtendimento,
-        $tiposAtendimentoPermitidos,
-        true
-    )
-) {
+if (!in_array($tipoAtendimento, $tiposPermitidos, true)) {
     responderJson(
         false,
         'O tipo de atendimento informado é inválido.',
@@ -152,8 +130,9 @@ if (!in_array($origem, $origensPermitidas, true)) {
 
 if (
     $convenio === '' ||
-    $especialidade === '' ||
-    $profissionalResponsavel === ''
+    $profissionalId === false ||
+    $profissionalId === null ||
+    $profissionalId <= 0
 ) {
     responderJson(
         false,
@@ -164,6 +143,80 @@ if (
 }
 
 try {
+    /*
+     * O médico e a especialidade são obtidos diretamente do cadastro.
+     * Assim o atendimento não aceita uma especialidade diferente
+     * daquela vinculada ao profissional.
+     */
+    $stmtMedico = $pdo->prepare(
+        "
+        SELECT
+            m.id,
+            m.nome,
+            m.crm,
+            m.uf_crm,
+            m.especialidade_id,
+            e.nome AS especialidade_nome
+        FROM medicos m
+        INNER JOIN especialidades e
+            ON e.id = m.especialidade_id
+        WHERE m.id = :id
+          AND m.ativo = 1
+        LIMIT 1
+        "
+    );
+
+    $stmtMedico->execute([
+        ':id' => $profissionalId
+    ]);
+
+    $medico = $stmtMedico->fetch(PDO::FETCH_ASSOC);
+
+    if (!$medico) {
+        responderJson(
+            false,
+            'O médico selecionado não foi encontrado ou está inativo.',
+            [],
+            422
+        );
+    }
+
+    $profissionalResponsavel =
+        (string) $medico['nome'];
+
+    $especialidade =
+        strtoupper(
+            strtr(
+                (string) $medico['especialidade_nome'],
+                [
+                    'Á' => 'A',
+                    'À' => 'A',
+                    'Â' => 'A',
+                    'Ã' => 'A',
+                    'É' => 'E',
+                    'Ê' => 'E',
+                    'Í' => 'I',
+                    'Ó' => 'O',
+                    'Ô' => 'O',
+                    'Õ' => 'O',
+                    'Ú' => 'U',
+                    'Ç' => 'C',
+                    'á' => 'A',
+                    'à' => 'A',
+                    'â' => 'A',
+                    'ã' => 'A',
+                    'é' => 'E',
+                    'ê' => 'E',
+                    'í' => 'I',
+                    'ó' => 'O',
+                    'ô' => 'O',
+                    'õ' => 'O',
+                    'ú' => 'U',
+                    'ç' => 'C'
+                ]
+            )
+        );
+
     $pdo->beginTransaction();
 
     $stmtPaciente = $pdo->prepare(
@@ -181,7 +234,7 @@ try {
     ]);
 
     if (!$stmtPaciente->fetchColumn()) {
-        throw new RuntimeException(
+        throw new DomainException(
             'O paciente informado não foi encontrado.'
         );
     }
@@ -189,11 +242,14 @@ try {
     $stmtSenha = $pdo->prepare(
         "
         SELECT
-            id,
-            numero,
-            status
-        FROM senhas_atendimento
-        WHERE id = :id
+            sa.id,
+            sa.numero,
+            sa.status,
+            f.tipo AS tipo_fila
+        FROM senhas_atendimento sa
+        INNER JOIN filas f
+            ON f.id = sa.fila_id
+        WHERE sa.id = :id
         LIMIT 1
         FOR UPDATE
         "
@@ -206,8 +262,40 @@ try {
     $senha = $stmtSenha->fetch(PDO::FETCH_ASSOC);
 
     if (!$senha) {
-        throw new RuntimeException(
+        throw new DomainException(
             'A senha informada não foi encontrada.'
+        );
+    }
+
+    if ($senha['status'] !== 'CHAMADA_RECEPCAO') {
+        $pdo->rollBack();
+
+        responderJson(
+            false,
+            'A senha precisa estar chamada na recepção.',
+            [
+                'status_atual' => $senha['status']
+            ],
+            409
+        );
+    }
+
+    $tipoFila = strtoupper((string) $senha['tipo_fila']);
+
+    if (
+        ($tipoFila === 'URGENCIA' && $tipoAtendimento !== 'URGENCIA') ||
+        ($tipoFila === 'AMBULATORIO' && $tipoAtendimento !== 'AMBULATORIO')
+    ) {
+        $pdo->rollBack();
+
+        responderJson(
+            false,
+            'O tipo de atendimento não corresponde à fila da senha.',
+            [
+                'tipo_fila' => $tipoFila,
+                'tipo_atendimento' => $tipoAtendimento
+            ],
+            422
         );
     }
 
@@ -234,13 +322,13 @@ try {
 
         responderJson(
             false,
-            'Essa senha já possui um atendimento aberto.',
+            'Essa senha já possui um atendimento criado.',
             [
                 'atendimento_id' =>
                     (int) $atendimentoExistente['id'],
 
                 'numero_atendimento' =>
-                    $atendimentoExistente[
+                    (string) $atendimentoExistente[
                         'numero_atendimento'
                     ]
             ],
@@ -248,13 +336,8 @@ try {
         );
     }
 
-    /*
-     * Insere inicialmente um número temporário único.
-     * Depois utiliza o ID para gerar AT000001,
-     * AT000002 e assim por diante.
-     */
     $numeroTemporario =
-        'TMP-' . bin2hex(random_bytes(8));
+        'TMP-' . bin2hex(random_bytes(12));
 
     $stmtInserir = $pdo->prepare(
         "
@@ -266,6 +349,7 @@ try {
             tipo_atendimento,
             convenio,
             especialidade,
+            profissional_id,
             profissional_responsavel,
             status,
             data_entrada
@@ -278,8 +362,9 @@ try {
             :tipo_atendimento,
             :convenio,
             :especialidade,
+            :profissional_id,
             :profissional_responsavel,
-            'AGUARDANDO_TRIAGEM',
+            'AGUARDANDO_MEDICO',
             NOW()
         )
         "
@@ -293,11 +378,18 @@ try {
         ':tipo_atendimento' => $tipoAtendimento,
         ':convenio' => $convenio,
         ':especialidade' => $especialidade,
+        ':profissional_id' => $profissionalId,
         ':profissional_responsavel' =>
             $profissionalResponsavel
     ]);
 
     $atendimentoId = (int) $pdo->lastInsertId();
+
+    if ($atendimentoId <= 0) {
+        throw new RuntimeException(
+            'Não foi possível obter o identificador do atendimento.'
+        );
+    }
 
     $numeroAtendimento =
         'AT' .
@@ -325,10 +417,12 @@ try {
         "
         UPDATE senhas_atendimento
         SET
-            status = 'AGUARDANDO_TRIAGEM',
-            etapa_chamada = 'TRIAGEM',
+            status = 'ATENDIMENTO_CRIADO',
+            etapa_chamada = NULL,
+            local_chamada = NULL,
             atendida_em = NOW()
         WHERE id = :id
+          AND status = 'CHAMADA_RECEPCAO'
         "
     );
 
@@ -336,31 +430,104 @@ try {
         ':id' => $senhaId
     ]);
 
+    if ($stmtAtualizarSenha->rowCount() !== 1) {
+        throw new RuntimeException(
+            'Não foi possível finalizar a senha na recepção.'
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Criação automática da Conta Hospitalar
+    |--------------------------------------------------------------------------
+    */
+
+    $stmtCriarConta = $pdo->prepare(
+        "
+        INSERT INTO contas_hospitalares (
+            atendimento_id,
+            paciente_id,
+            convenio_id,
+            data_abertura,
+            valor_bruto,
+            valor_desconto,
+            valor_coparticipacao,
+            valor_liquido,
+            status
+        )
+        VALUES (
+            :atendimento_id,
+            :paciente_id,
+            NULL,
+            NOW(),
+            0.00,
+            0.00,
+            0.00,
+            0.00,
+            'ABERTA'
+        )
+        "
+    );
+
+    $stmtCriarConta->execute([
+        ':atendimento_id' => $atendimentoId,
+        ':paciente_id' => $pacienteId
+    ]);
+
+    $contaHospitalarId = (int) $pdo->lastInsertId();
+
+    if ($contaHospitalarId <= 0) {
+        throw new RuntimeException(
+            'Não foi possível criar a Conta Hospitalar.'
+        );
+    }
+
     $pdo->commit();
 
     responderJson(
         true,
-        'Atendimento criado e encaminhado para triagem.',
+        'Atendimento e Conta Hospitalar criados com sucesso.',
         [
             'id' => $atendimentoId,
+            'atendimento_id' => $atendimentoId,
             'numero_atendimento' => $numeroAtendimento,
-            'senha' => $senha['numero'],
-            'status' => 'AGUARDANDO_TRIAGEM'
+            'conta_hospitalar_id' => $contaHospitalarId,
+            'status_conta_hospitalar' => 'ABERTA',
+            'senha_id' => (int) $senha['id'],
+            'senha' => (string) $senha['numero'],
+            'status_atendimento' => 'AGUARDANDO_MEDICO',
+            'status_senha' => 'ATENDIMENTO_CRIADO',
+            'redirecionar_para' =>
+                '/safe-health/modules/atendimento/recepcao.php'
         ],
         201
     );
-} catch (Throwable $erro) {
+} catch (DomainException $erro) {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
 
     responderJson(
         false,
+        $erro->getMessage(),
+        [],
+        404
+    );
+} catch (Throwable $erro) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+
+    error_log(
+        'Erro ao criar atendimento: ' .
+        $erro->getMessage()
+    );
+
+    responderJson(
+        false,
         'Não foi possível criar o atendimento.',
         [
-            'erro' => $erro->getMessage(),
-            'arquivo' => basename($erro->getFile()),
-            'linha' => $erro->getLine()
+            'erro' => $erro->getMessage()
         ],
         500
     );

@@ -29,20 +29,11 @@ function responderJson(
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    responderJson(
-        false,
-        'Método não permitido.',
-        [],
-        405
-    );
+    responderJson(false, 'Método não permitido.', [], 405);
 }
 
-$conteudoRecebido = file_get_contents('php://input');
-
-$entrada = json_decode(
-    $conteudoRecebido ?: '',
-    true
-);
+$conteudo = file_get_contents('php://input');
+$entrada = json_decode($conteudo ?: '', true);
 
 if (!is_array($entrada)) {
     responderJson(
@@ -67,18 +58,17 @@ if (
     $senhaId === null ||
     $senhaId <= 0
 ) {
-    responderJson(
-        false,
-        'Senha inválida.',
-        [],
-        422
-    );
+    responderJson(false, 'Senha inválida.', [], 422);
 }
 
 if ($guiche === '') {
+    responderJson(false, 'Informe o guichê.', [], 422);
+}
+
+if (mb_strlen($guiche) > 100) {
     responderJson(
         false,
-        'Informe o guichê.',
+        'O nome do guichê é muito longo.',
         [],
         422
     );
@@ -95,16 +85,11 @@ try {
             sa.status,
             f.nome AS fila,
             f.tipo
-
         FROM senhas_atendimento sa
-
         INNER JOIN filas f
             ON f.id = sa.fila_id
-
         WHERE sa.id = :senha_id
-
         LIMIT 1
-
         FOR UPDATE
         "
     );
@@ -113,24 +98,24 @@ try {
         ':senha_id' => $senhaId
     ]);
 
-    $senha = $stmtSenha->fetch(
-        PDO::FETCH_ASSOC
-    );
+    $senha = $stmtSenha->fetch(PDO::FETCH_ASSOC);
 
     if (!$senha) {
         $pdo->rollBack();
-
-        responderJson(
-            false,
-            'Senha não encontrada.',
-            [],
-            404
-        );
+        responderJson(false, 'Senha não encontrada.', [], 404);
     }
 
+    $statusAnterior = (string) $senha['status'];
+
     if (
-        $senha['status'] !==
-        'AGUARDANDO_RECEPCAO'
+        !in_array(
+            $statusAnterior,
+            [
+                'AGUARDANDO_RECEPCAO',
+                'CHAMADA_RECEPCAO'
+            ],
+            true
+        )
     ) {
         $pdo->rollBack();
 
@@ -138,7 +123,7 @@ try {
             false,
             'Esta senha não está disponível para chamada.',
             [
-                'status_atual' => $senha['status']
+                'status_atual' => $statusAnterior
             ],
             409
         );
@@ -147,15 +132,12 @@ try {
     $stmtAtualizar = $pdo->prepare(
         "
         UPDATE senhas_atendimento
-
         SET
             status = 'CHAMADA_RECEPCAO',
             etapa_chamada = 'RECEPCAO',
             local_chamada = :local_chamada,
             chamada_em = NOW()
-
         WHERE id = :senha_id
-          AND status = 'AGUARDANDO_RECEPCAO'
         "
     );
 
@@ -166,7 +148,7 @@ try {
 
     if ($stmtAtualizar->rowCount() !== 1) {
         throw new RuntimeException(
-            'Não foi possível atualizar o status da senha.'
+            'Não foi possível atualizar a senha.'
         );
     }
 
@@ -198,20 +180,24 @@ try {
 
     $pdo->commit();
 
+    $rechamada =
+        $statusAnterior === 'CHAMADA_RECEPCAO';
+
     responderJson(
         true,
-        'Senha chamada com sucesso.',
+        $rechamada
+            ? 'Senha rechamada com sucesso.'
+            : 'Senha chamada com sucesso.',
         [
             'chamada_id' => $chamadaId,
             'senha_id' => (int) $senha['id'],
-            'numero' => $senha['numero'],
-            'fila' => $senha['fila'],
-            'tipo' => $senha['tipo'],
+            'numero' => (string) $senha['numero'],
+            'fila' => (string) $senha['fila'],
+            'tipo' => (string) $senha['tipo'],
             'guiche' => $guiche,
-            'status_anterior' =>
-                'AGUARDANDO_RECEPCAO',
-            'status_atual' =>
-                'CHAMADA_RECEPCAO'
+            'rechamada' => $rechamada,
+            'status_anterior' => $statusAnterior,
+            'status_atual' => 'CHAMADA_RECEPCAO'
         ]
     );
 } catch (Throwable $erro) {

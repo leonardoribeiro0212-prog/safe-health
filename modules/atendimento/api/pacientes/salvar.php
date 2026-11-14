@@ -7,6 +7,7 @@ session_start();
 header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/../../../../config/database.php';
+require_once __DIR__ . '/cpf.php';
 
 try {
     $entrada = json_decode(
@@ -22,11 +23,7 @@ try {
 
     $nome = trim((string) ($entrada['nome'] ?? ''));
 
-    $cpf = preg_replace(
-        '/\D/',
-        '',
-        (string) ($entrada['cpf'] ?? '')
-    );
+    $cpf = normalizarCpf((string) ($entrada['cpf'] ?? ''));
 
     $dataNascimento = trim(
         (string) ($entrada['data_nascimento'] ?? '')
@@ -93,12 +90,12 @@ try {
         exit;
     }
 
-    if (strlen($cpf) !== 11) {
+    if (!validarCpf($cpf)) {
         http_response_code(422);
 
         echo json_encode([
             'sucesso' => false,
-            'mensagem' => 'Informe um CPF com 11 números.'
+            'mensagem' => 'CPF inválido. Verifique os números informados.'
         ]);
 
         exit;
