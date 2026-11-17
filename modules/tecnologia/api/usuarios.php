@@ -310,9 +310,9 @@ try {
 
     } else {
         /*
-         * usuarios.perfil_id é NOT NULL na estrutura atual.
-         * Enquanto o projeto migra o controle de acesso para usuario_papel/papeis,
-         * preservamos um perfil legado válido sem expô-lo na interface.
+         * O campo perfil_id ainda é obrigatório na tabela de usuários.
+         * O vínculo com papeis é feito por usuario_papel; neste caso,
+         * mantemos um perfil existente para atender à restrição do banco.
          */
         $stmtPerfil = $pdo->query("
             SELECT perfil_id

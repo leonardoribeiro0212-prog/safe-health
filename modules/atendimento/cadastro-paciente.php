@@ -882,7 +882,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
         });
     });
 
-    // Captura antes do JS original: CPF inválido nem chega à API de pesquisa.
+    // Confere o CPF antes de iniciar a pesquisa.
     botaoPesquisar?.addEventListener('click', (evento) => {
         if (!aplicarEstado(cpfPesquisa)) {
             evento.preventDefault();
@@ -892,7 +892,7 @@ require_once __DIR__ . '/../../includes/sidebar.php';
         }
     }, true);
 
-    // A API PHP repete a validação, mas bloqueamos antes para melhorar a UX.
+    // Valida também no formulário; o servidor faz a conferência novamente.
     formulario?.addEventListener('submit', (evento) => {
         if (!aplicarEstado(cpfCadastro)) {
             evento.preventDefault();

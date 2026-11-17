@@ -305,7 +305,7 @@ try {
         );
     }
 
-    // CORREÇÃO: Verificação mantida uma única vez
+    // Evita repetir a mesma validação.
     if (
         $senha['status'] !==
         'AGUARDANDO_TRIAGEM'

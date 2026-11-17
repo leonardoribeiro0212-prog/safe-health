@@ -155,7 +155,7 @@ try {
     ]);
 
     $ultimoSequencial = (int) $stmtSequencial->fetchColumn();
-    $sequencial = $ultimoSequencial + 1; // CORREÇÃO: Incremento do sequencial
+    $sequencial = $ultimoSequencial + 1; // Próximo número da fila
 
     $numeroSenha = $prefixo . str_pad((string) $sequencial, 3, '0', STR_PAD_LEFT);
     $dataAtual = date('Y-m-d');
@@ -188,7 +188,7 @@ try {
         "
     );
 
-    // CORREÇÃO: Executado apenas UMA vez
+    // Registra a senha na fila.
     $stmtInserir->execute([
         ':fila_id'      => (int) $fila['id'],
         ':numero'       => $numeroSenha,

@@ -10,12 +10,7 @@ function normalizarCpf(string $cpf): string
     return preg_replace('/\D/', '', $cpf) ?? '';
 }
 
-/**
- * Valida CPF pelos dois dígitos verificadores oficiais.
- *
- * Observação: esta validação confirma a consistência matemática do CPF.
- * Ela não consulta a situação cadastral do documento na Receita Federal.
- */
+
 function validarCpf(string $cpf): bool
 {
     $cpf = normalizarCpf($cpf);

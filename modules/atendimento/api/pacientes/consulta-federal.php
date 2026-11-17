@@ -38,12 +38,12 @@ if (!$data || $data->format('Y-m-d') !== $nascimento || $data > new DateTimeImmu
 }
 
 /*
- * AMBIENTE DE TESTES LOCAL — NÃO consulta Receita Federal / SERPRO.
- * Habilitar SOMENTE para demonstração, com variável de ambiente:
+ * Consulta de CPF em modo local. Não há integração com a Receita Federal ou o SERPRO.
+ * O modo de demonstração só deve ser ativado pela variável:
  * SAFE_HEALTH_CPF_MODE=demo
  *
- * Nenhum CPF/data é enviado a serviços externos.
- * Nunca use respostas DEMO como prova de situação cadastral.
+ * Os dados informados não são enviados a serviços externos.
+ * A resposta de demonstração não comprova a situação cadastral do CPF.
  */
 $modo = strtolower(trim((string) (getenv('SAFE_HEALTH_CPF_MODE') ?: 'disabled')));
 if ($modo !== 'demo') {

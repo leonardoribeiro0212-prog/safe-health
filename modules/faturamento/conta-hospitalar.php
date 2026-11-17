@@ -1237,8 +1237,8 @@ if (
 }
 
 /*
- * Ajuste os nomes dos campos abaixo caso sua estrutura
- * de pacientes, atendimentos ou convênios seja diferente.
+ * Consulta dos dados da conta hospitalar e seus vínculos
+ * com paciente, atendimento e convênio.
  */
 $stmtConta = $pdo->prepare("
 SELECT

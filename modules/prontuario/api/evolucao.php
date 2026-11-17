@@ -506,7 +506,7 @@ try {
     }
 
     if ($acao === 'finalizar') {
-        // Segurança v2: permissão granular + confirmação recente da senha.
+        // Confere a permissão e exige confirmação da senha antes de finalizar.
         shExigirAcao($pdo, 'PRONTUARIO_FINALIZAR');
         shExigirReautenticacao($pdo);
 
